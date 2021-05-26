@@ -15,7 +15,7 @@ if config["R0"]:
 else:
 	rule all:
 		input:
-			"results/interpolation/interpolation.csv"
+			"results/incidence/incidence.csv"
 
 
 rule strip_whitespaces:
