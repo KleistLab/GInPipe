@@ -168,6 +168,9 @@ snakemake --use-conda --snakefile GInPipe --configfile path/to/config.yaml -j -d
 
 The ---use-conda parameter allows Snakemake to install packages that are listed in the environment file [`env.yml`](./env/env.yml). With parameter --configfile you can give the configuration file [`config.yml`], described above. The -j parameter determines the number of available CPU cores to use in the pipeline. Optionally you can provide the number of cores, e.g. -j 4. With parameter -d you can set the work directory, i.e. where the results of the pipeline are written to.
 
+## Running the pipeline for SARS-CoV-2 on GISAID data
+Simply download sequence data from GISAID and adapt the path as explained in 2.1. Also download a reference sequence and add the path, as explained in 2.3. 
+
 ## Output
 The pipeline creates a folder **'results'**, containing all (intermediate) outputs, with the following structure:
 ```
