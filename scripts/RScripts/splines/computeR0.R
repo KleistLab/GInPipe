@@ -3,6 +3,7 @@
 # clear the environment variables
 rm(list = ls())
 
+options(warn=-1)
 
 # install needed packages
 dynamic_require <- function(package){
@@ -37,7 +38,7 @@ input.table = read.table(inputFile, header=T, sep = ",")
 # Output file
 fileName<-basename(outputFile)
 outputDir<- dirname(outputFile)
-print(outputFile)
+
 if(!dir.exists(outputDir))
   dir.create(outputDir, showWarnings = FALSE, recursive = TRUE)
 outputDir <- normalizePath(outputDir)
@@ -80,4 +81,4 @@ td.table$date <- input.table[td$begin.nb:td$end.nb,]$date
 outputFileWT <- paste0(normalizePath(outputDir),"/",substr(fileName,1,(nchar(fileName)-4)),".pdf")
 plotR0Package(td.table,"WT04",outputFileWT)
 # Write table
-write.csv(td.table,paste0(outputDir,"/r0.csv"), row.names = F, col.names = T)
+write.csv(td.table,paste0(outputDir,"/r0.csv"), row.names = F)
