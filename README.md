@@ -4,12 +4,13 @@ This pipeline infers the trajectory of an effective population size (or incidenc
 In brief: Viral sequence data is placed into redundant temporal bins. For each bin, a parameter is inferred that correlates with the effective population size estimate (or incidence) of the infection. GInPipe then smoothes over all derived parameters and reconstructs continuous trajectory of the effective population size estimate (or incidence).
   -   [Operating systems and dependencies](#operating-systems-and-dependencies)
   -   [Input](#input)
-  -   [Demo data](#demo-data)
   -   [Running the pipeline](#running-the-pipeline)
       -   [1. Prerequisites](#1-prerequisites)
       -   [2. Initialization](#2-initialization)
       -   [3. Command execution](#3-command-execution)
   -   [Output](#output)
+  -   [Demo](#demo)
+  -   [Running the pipeline for SARS-CoV-2 on GISAID data](running-the-pipeline-for-sars-cov-2-on-gisaid-data)
 
 ## Operating systems and dependencies
 
