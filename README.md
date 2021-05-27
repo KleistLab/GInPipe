@@ -10,7 +10,7 @@ In brief: Viral sequence data is placed into redundant temporal bins. For each b
       -   [3. Command execution](#3-command-execution)
   -   [Output](#output)
   -   [Demo](#demo)
-  -   [Running the pipeline for SARS-CoV-2 on GISAID data](running-the-pipeline-for-sars-cov-2-on-gisaid-data)
+  -   [Running the pipeline for SARS-CoV-2 on GISAID data](#running-the-pipeline-for-sars-cov-2-on-gisaid-data)
 
 ## Operating systems and dependencies
 
