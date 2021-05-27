@@ -101,7 +101,7 @@ If the headers in the sequence file do not contain the date, you can add it to h
 
 #### 2.2 Reported cases data file
 
-To compare estimated population dynamics with reported active cases, you can include a table in the folder [`reported_cases`](./reported_cases). Also provide the following parameters in the corresponding config field like this:
+To compare estimated population dynamics with reported active cases, provide the following parameters in the corresponding config field like this:
 
   ```
   reported_cases: ["path/to/reported_cases.csv","\t","date","active_cases","%m/%d/%y"]
