@@ -37,6 +37,8 @@ This workflow uses the following dependencies:
 
 They are installed automatically upon execution using the environment file [`env.yml`](./env/env.yml) and R scripts [`computeInterpolation.R`](./scripts/RScripts/splines/computeInterpolation.R) and [`computeR0.R`](./scripts/RScripts/splines/computeR0.R)
 
+Preparing the environment takes about 3 minutes.
+
 ## Input
 As an input the pipeline requires a file containing sequences and a file with a reference consensus sequence.
 
