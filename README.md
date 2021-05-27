@@ -224,7 +224,7 @@ snakemake --use-conda --snakefile GInPipe --configfile demo/demo_config.yaml -j 
 ```
 
 It may take about 3 minutes to prepare the environment and around 2 minutes to run the pipeline.
-The result folder is created in the *demo* folder where you find the output files, as described above.
+The result folder is created in the [`demo`](./demo) folder where you find the output files, as described above.
 
 ## Running the pipeline for SARS-CoV-2 on GISAID data
 
