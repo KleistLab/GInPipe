@@ -45,10 +45,6 @@ and can be either part of the sequence-name or provided in an additional file.
 - If the date is part of the sequence-name, then the name should look like this: **'some_name | %YYYY-%mm-%dd'**.   
 - If the date is provided in an additional file, add the date to corresponding FASTA headers.
 
-## Demo data
-
-A small demo sequence set and a reference sequence are included in repository folders [`raw`](./raw) and [`consensus`](./consensus) accordingly. To run the pipeline on the demo data set follow the instructions below. 
-
 ## Running the pipeline
 
 This is a small guide on how to set up and run the pipeline.
@@ -88,6 +84,8 @@ conda install snakemake
 As input the pipeline requires names of the sequence file, the reference genome, and binning parameters.
 These variables are stored in [`config.yaml`](./config.yaml) and used as wildcards to create and link files with each other or as parameters for the binning. For more information about the YAML markup format refer to documentation: https://yaml.org
 
+The specified paths in the config file should either be absolute, or relative to the work environment specified with -d in the snakemake call (see 3.0).
+
 #### 2.1 Raw sequences
 The pipeline requires a file containing sequences, with the date in the sequence-name in GISAID format (date in format "%Y-%m-%d" at the end of header after a vertical bar).
 
@@ -115,7 +113,7 @@ If no reported cases data is provided, leave the fields empty like this:
   ```
 
 #### 2.3 Reference consensus sequence
-Copy and paste the file path of reference/consensus sequence into the variable **consensus** of [`config.yaml`](./config.yaml).
+Copy and paste the file path of reference/consensus sequence into the variable **consensus** of [`config.yaml`](./config.yaml). 
 
   ```
   consensus: "path/to/consensus/sequence.fasta"
@@ -168,9 +166,6 @@ snakemake --use-conda --snakefile GInPipe --configfile path/to/config.yaml -j -d
 
 The ---use-conda parameter allows Snakemake to install packages that are listed in the environment file [`env.yml`](./env/env.yml). With parameter --configfile you can give the configuration file [`config.yml`], described above. The -j parameter determines the number of available CPU cores to use in the pipeline. Optionally you can provide the number of cores, e.g. -j 4. With parameter -d you can set the work directory, i.e. where the results of the pipeline are written to.
 
-## Running the pipeline for SARS-CoV-2 on GISAID data
-Simply download sequence data from GISAID and adapt the path as explained in 2.1. Also download a reference sequence and add the path, as explained in 2.3. 
-
 ## Output
 The pipeline creates a folder **'results'**, containing all (intermediate) outputs, with the following structure:
 ```
@@ -210,3 +205,27 @@ The analysis results for different binning modes (plots and tables) can be found
 - In folder *r0* (if option to calculate reproduction number is chosen):
     -  *r0.csv*: table containing daily reproductive number estimates; calculated from the interpolated trajectory
     -  *r0.pdf*: plot of daily reproductive number estimates with confidence interval
+
+## Demo
+
+A demo sequence set and a reference sequence are included in repository folders [`demo`](./demo). 
+The directory contains a simulated data set with 
+
+- the reference sequence (demo_reference.fasta)
+- a fasta file containing the newly emerging sequences over time (demo_samples.fasta)
+- the underlying true number of emerging sequences (demo_reported_cases.tsv) 
+- the config file to call the pipeline with (demo_config.yaml)
+
+
+To run the pipeline go into the repository where the GInPipe file is located and run
+
+```
+snakemake --use-conda --snakefile GInPipe --configfile demo/demo_config.yaml -j -d demo
+```
+
+It may take about 3 minutes to prepare the environment and around 2 minutes to run the pipeline.
+The result folder is created in the *demo* folder where you find the output files, as described above.
+
+## Running the pipeline for SARS-CoV-2 on GISAID data
+
+To run the pipeline on real data, such as COVID sequences from GISAID, download the accordings sequence data as well as the reference sequence and adapt the paths in the config.yaml as explained in 2.1.and 2.3. 
