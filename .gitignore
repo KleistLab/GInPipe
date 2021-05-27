@@ -1,0 +1,9 @@
+#Results folder
+results
+#Log files
+logs
+#OS files
+.DS_Store
+._
+#Snakemake
+.snakemake

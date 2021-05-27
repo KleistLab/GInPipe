@@ -77,7 +77,7 @@ td <- est.R0.TD(as.numeric(unlist(round(input.table$smoothMedian))),GT=GT,t=inpu
 td.table <- data.frame(t=input.table[td$begin.nb:td$end.nb,]$t,value=as.vector(td$R),lower=as.vector(td$conf.int$lower),upper=as.vector(td$conf.int$upper))
 # plot
 td.table$date <- input.table[td$begin.nb:td$end.nb,]$date
-outputFileWT <- paste0(normalizePath(outputDir),"/",substr(fileName,1,(nchar(fileName)-4)),".pdf")
+outputFileWT <- paste0(normalizePath(outputDir),"/",substr(fileName,1,(nchar(fileName)-4)),".png")
 plotR0Package(td.table,"WT04",outputFileWT)
 # Write table
 write.csv(td.table,paste0(outputDir,"/r0.csv"), row.names = F, col.names = T)

@@ -133,10 +133,12 @@ rule run_binning:
 		reference = config["consensus"]
 	conda:
 		"env/env.yml"
+	log:
+		"logs/binning.log"
 	script:
 		"scripts/binning/run_binning_count.py"
 
-rule theta_estimates:
+rule incidence_estimates:
 	input:
 		"results/bins/list_of_binnings.tsv"
 	output:
@@ -148,6 +150,8 @@ rule theta_estimates:
 		min_days_span = config["min_days_span"],
 		max_days_span = config["max_days_span"],
 		group = config["group"]
+	log:
+		"logs/incidence_est.log"
 	conda:
 		"env/env.yml"
 	script:
@@ -164,7 +168,7 @@ rule interpolation:
 	output:
 		result = "results/incidence/incidence.csv",
 	shell:
-		"Rscript {workflow.basedir}/scripts/Rscripts/splines/computeInterpolation.R {input.infile} \
+		"Rscript {workflow.basedir}/scripts/incidence/computeInterpolation.R {input.infile} \
 		{params.group} {output.result} {params.rep_cases}"
 
 if config["R0"]:
@@ -176,5 +180,5 @@ if config["R0"]:
 		conda:
 			"env/env.yml"
 		shell:
-			"Rscript {workflow.basedir}/scripts/Rscripts/splines/computeR0.R {input.infile} \
+			"Rscript {workflow.basedir}/scripts/incidence/computeR0.R {input.infile} \
 			{output.outfile}"

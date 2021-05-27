@@ -147,51 +147,8 @@ for folder in binnings:
     thetas, variance, variance_size, num_seqs, num_mut, origins = analyze.analyzeBinsMLE()
     weeks = np.arange(0,len(thetas))
     print("      Done.\n")
-    print("      Starting to write tables and making complementary plots...")
+    print("      Starting to write tables...")
 
-    # Plots for different variables and outcomes of individual binnings
-    # a) Bin sizes bar plot
-    plot_title = "Bin sizes for %s" % folder
-    fig, ax1 = plt.subplots()
-    ax1.set_title("%s" % plot_title)
-    ax1.set_xlabel('Mean bin date')
-    ax1.set_ylabel("Bin size", color='crimson')
-    ax1.bar(mean_header_bin, num_seqs, color='crimson')
-    ax1.tick_params(axis='y', labelcolor='crimson')
-    ax1.set_xticks(mean_header_bin[::10])
-    ax1.set_xticklabels(mean_header_bin[::10])
-    fig.tight_layout()
-    name = str(out_dir)+"/plot_"+folder+"_bin_sizes.png"
-    fig.savefig(str(name),dpi=300)
-    plt.clf()
-
-    # b) Number of origins vs number of mutants
-    plot_title = "Origins and mutants for %s" % folder
-    fig, ax1 = plt.subplots()
-    ax1.set_title("%s" % plot_title)
-    ax1.plot(mean_header_bin, origins, '-', color='green', label="Origins")
-    ax1.plot(mean_header_bin, num_mut, 'o', color='blue', label="Number of mutants")
-    ax1.set_xlabel('Mean bin date')
-    ax1.set_ylabel('Count')
-    ax1.set_xticks(mean_header_bin[::10])
-    ax1.set_xticklabels(mean_header_bin[::10])
-    ax1.legend()
-    name = str(out_dir)+"/plot_"+folder+"_originsvsmut.png"
-    fig.savefig(str(name),dpi=300)
-    plt.clf()
-
-    # c) Theta estimates normalized by time delta
-    plot_title = "Population size estimate %s" % folder
-    fig, ax1 = plt.subplots()
-    ax1.set_title("%s" % plot_title)
-    ax1.plot(mean_header_bin, np.array(thetas), '-', color='royalblue')
-    ax1.set_xlabel('Mean bin date')
-    ax1.set_ylabel(r'$\phi_{est}$')
-    ax1.set_xticks(mean_header_bin[::10])
-    ax1.set_xticklabels(mean_header_bin[::10])
-    name = str(out_dir)+"/plot_"+folder+"_thetas.png"
-    fig.savefig(str(name),dpi=300)
-    fig.clf()
 
     # Write bin file
     name_table = "table_"+file_suffix+"_"+folder+"_phi_estimate_var_from_size.tsv"
