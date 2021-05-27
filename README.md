@@ -1,6 +1,7 @@
 # G*enome-based* In*cidence Estimation* Pipe*line*
 
-This pipeline was created as an easy-to-use tool to infer the trajectory of an effective population size (or incidence) for a viral pandemic from a collection of time-stamped sequences. By binning a sequence data set that spans a long time period in several different ways, this tool calculates a continuous trajectory of an effective population size estimate/incidence.
+This pipeline was created as an easy-to-use tool to infer the trajectory of an effective population size (or incidence) for a viral pandemic from a collection of time-stamped viral sequences. The pipeline has, so far been tested for SARS-CoV-2.
+In brief: Viral sequence data is placed into redundant temporal bins. For each bin, a paremeter is inferred that correlates with the effective population size estimate (or incidence) of the infection. GInPipe then smoothes over all derived parameters and reconstructs continuous trajectory of the effective population size estimate (or incidence).
   -   [Operating systems and dependencies](#operating-systems-and-dependencies)
   -   [Input](#input)
   -   [Demo data](#demo-data)
