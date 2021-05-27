@@ -1,6 +1,40 @@
 # G*enome-based* In*cidence Estimation* Pipe*line*
 
 This pipeline was created as an easy-to-use tool to study the change of population size over time using a collection of sequences. By binning a sequence data set that spans a long time period in several different ways, this tool calculates a continuous trajectory of a population size estimate.
+  -   [Operating systems and dependencies](#operating-systems-and-dependencies)
+  -   [Input](#input)
+  -   [Demo data](#demo-data)
+  -   [Running the pipeline](#running-the-pipeline)
+      -   [1. Prerequisites](#1-prerequisites)
+      -   [2. Initialization](#2-initialization)
+      -   [3. Command execution](#3-command-execution)
+  -   [Output](#output)
+
+## Operating systems and dependencies
+
+This workflow was tested on macOS Mojave Version 10.14.4 and ... (Fill in MAUREEN!)
+
+This workflow uses the following dependencies: 
+
+```
+  - bbmap
+  - seqkit
+  - samtools
+  - numpy
+  - pysam
+  - biopython
+  - pandas
+  - scipy
+  - matplotlib
+  - minimap2
+  - ggplot2 
+  - mgcv
+  - MASS
+  - R0
+  - scales
+```
+
+They are installed automatically upon execution using the environment file [`env.yml`](./env/env.yml) and R scripts [`computeInterpolation.R`](./scripts/RScripts/splines/computeInterpolation.R) and [`computeR0.R`](./scripts/RScripts/splines/computeR0.R)
 
 ## Input
 As an input the pipeline requires a file containing sequences and a file with a reference consensus sequence.
@@ -10,7 +44,11 @@ and can be either part of the sequence-name or provided in an additional file.
 - If the date is part of the sequence-name, then the name should look like this: **'some_name | %YYYY-%mm-%dd'**.   
 - If the date is provided in an additional file, add the date to corresponding FASTA headers.
 
-## How to run this pipeline - A small instruction
+## Demo data
+
+A small demo sequence set and a reference sequence are included in repository folders [`raw`](./raw) and [`consensus`](./consensus) accordingly. To run the pipeline on the demo data set follow the instructions below. 
+
+## Running the pipeline
 
 This is a small guide on how to set up and run the pipeline.
 
@@ -44,7 +82,7 @@ Snakemake is the workflow management system we use. Install it like this:
 conda install snakemake
 ```
 
-### 2. Initialize the pipeline
+### 2. Initialization
 
 As input the pipeline requires names of the sequence file, the reference genome, and binning parameters.
 These variables are stored in [`config.yaml`](./config.yaml) and used as wildcards to create and link files with each other or as parameters for the binning. For more information about the YAML markup format refer to documentation: https://yaml.org
@@ -57,7 +95,7 @@ For sequence files containing the date within the sequence-name, copy the file p
   ```
   samples: "path/to/sequences/data"
   ```
-If the headers in the sequence file do not contain the date, you can add it to headers using a script provided (TODO!).
+If the headers in the sequence file do not contain the date, you can add it to headers using a custom script, given a meta table is provided along with the FASTA file.
 
 #### 2.2 Reported cases data file
 
@@ -95,7 +133,7 @@ min_bin_size: 15
 max_days_span: 21
 ```
 
-If parameter **number_per_bin** is an empty list, a default mode with predefined fractions of reads (2%, 5%, 7%) is used. Alternatively, all arrays can be given in the configuration file as a list, like this:
+If parameter **number_per_bin** is an empty list, a default mode with predefined fractions of sequences (2%, 5%, 7%) is used. Alternatively, all arrays can be given in the configuration file as a list, like this:
 
 ```
 number_per_bin:
@@ -119,7 +157,7 @@ R0: n
 
 Other options for specifying this parameter also work. For examples see https://yaml.org/type/bool.html
 
-### 3. Run
+### 3. Command execution
 
 To run the pipeline, go to the pipeline directory (where the Snakefile is) and activate the conda environment created in step 1.2. Then enter the following command to execute the pipeline:
 
