@@ -1,6 +1,6 @@
 # G*enome-based* In*cidence Estimation* Pipe*line*
 
-This pipeline was created as an easy-to-use tool to study the change of population size over time using a collection of sequences. By binning a sequence data set that spans a long time period in several different ways, this tool calculates a continuous trajectory of a population size estimate.
+This pipeline was created as an easy-to-use tool to infer the trajectory of an effective population size (or incidence) for a viral pandemic from a collection of time-stamped sequences. By binning a sequence data set that spans a long time period in several different ways, this tool calculates a continuous trajectory of an effective population size estimate/incidence.
   -   [Operating systems and dependencies](#operating-systems-and-dependencies)
   -   [Input](#input)
   -   [Demo data](#demo-data)
