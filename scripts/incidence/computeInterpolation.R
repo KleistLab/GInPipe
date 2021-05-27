@@ -3,6 +3,7 @@
 # clear the environment variables
 rm(list = ls())
 
+options(warn=-1)
 
 # install needed packages
 dynamic_require <- function(package){
@@ -60,7 +61,38 @@ outputDir<- dirname(outputFile)
 if(!dir.exists(outputDir))
   dir.create(outputDir, showWarnings = FALSE, recursive = TRUE)
 outputDir <- normalizePath(outputDir)
-outputFile<-paste0(normalizePath(outputDir),"/",fileName)
+outputFile<-paste0(outputDir,"/",fileName)
+
+
+# Read reporte cases, if existing
+cases.table.full = data.frame(matrix(ncol=0,nrow=0))
+cases.table = data.frame(matrix(ncol=0,nrow=0))
+
+# Some fake date
+minDate1 <- integer(0)
+class(minDate1) <- "Date"
+if (!is.na(table_name)) {
+  cases.table.full = read.table(table_name, header=T, sep=table_delim)
+  # change column names as they can be chosen flexibly, but we require date and new_cases
+  names(cases.table.full)[names(cases.table.full) == table_date_col] <- "date"
+  names(cases.table.full)[names(cases.table.full) == table_active_col] <- "new_cases"
+  minDate1 = min(as.Date(cases.table.full$date, table_date_format))
+  #minDates <- c(minDates,minDate1)
+  cases.table.full$date <- as.Date(cases.table.full$date, table_date_format)
+  # Make cases table with t, new_cases, dates
+  cases.table <- data.frame(new_cases=cases.table.full$new_cases,date=cases.table.full$date)
+  if (!"new_cases" %in% colnames(cases.table)) {
+    cat("\n Reported cases table has no column named 'new_cases'. Rename existing columns
+                or provide a new table\n")
+    #terminate without saving workspace
+    quit("no")}
+  cases.table$new_cases[cases.table$new_cases<0] <- 0
+  cases.table$new_cases[is.na(cases.table$new_cases)] <- 0
+  cases.table$new_cases_avrg <- filter(cases.table$new_cases, rep(1/7,7))
+  cases.table <- na.omit(cases.table)
+  cases.table$country <- rep(country,nrow(cases.table))
+}
+
 
 ### All absolute paths are set, change working directory
 # set working directory to call other R Scripts
@@ -80,37 +112,10 @@ if (rstudioapi::isAvailable()) {
 }
 setwd(this.dir)
 # load other r routines
-source("splineRoutines.r")
 source("plotRoutines.r")
 source("dateFormatRoutines.r")
+source("splineRoutines.r")
 
-cases.table.full = data.frame(matrix(ncol=0,nrow=0))
-cases.table = data.frame(matrix(ncol=0,nrow=0))
-# Some fake date
-minDate1 <- integer(0)
-class(minDate1) <- "Date"
-if (!is.na(table_name)) {
-  cases.table.full = read.table(normalizePath(table_name), header=T, sep=table_delim)
-  # change column names as they can be chosen flexibly, but we require date and new_cases
-  names(cases.table.full)[names(cases.table.full) == table_date_col] <- "date"
-  names(cases.table.full)[names(cases.table.full) == table_active_col] <- "new_cases"
-  minDate1 = min(as.Date(cases.table.full$date, table_date_format))
-  #minDates <- c(minDates,minDate1)
-  cases.table.full$date <- as.Date(cases.table.full$date, table_date_format)
-  # Make cases table with t, new_cases, dates
-  cases.table <- data.frame(new_cases=cases.table.full$new_cases,date=cases.table.full$date)
-  if (!"new_cases" %in% colnames(cases.table)) {
-    cat("\n Reported cases table has no column named 'new_cases'. Rename existing columns
-                or provide a new table\n")
-    #terminate without saving workspace
-    quit("no")}
-  cases.table$new_cases[cases.table$new_cases<0] <- 0
-  cases.table$new_cases[is.na(cases.table$new_cases)] <- 0
-  cases.table$new_cases_avrg <- filter(cases.table$new_cases, rep(1/7,7))
-  cases.table <- na.omit(cases.table)
-  cases.table$country <- rep(country,nrow(cases.table))
-
-}
 
 # minDate to use in all plotted tables
 minDate2 = min(as.Date(input.table$meanBinDate,input_date_format))
@@ -144,8 +149,8 @@ interp.table$date <- days.as.Date(interp.table$t, minDate)
 
 # Write tables and plot
 write.csv(interp.table,paste0(outputDir,"/",fileName), row.names = F, col.names = T)
-outputFileInter<-paste0(normalizePath(outputDir),"/",substr(fileName,1,(nchar(fileName)-4)),".pdf")
-outputFileInterDots<-paste0(normalizePath(outputDir),"/","wdots_",substr(fileName,1,(nchar(fileName)-4)),".pdf")
+outputFileInter<-paste0(outputDir,"/",substr(fileName,1,(nchar(fileName)-4)),".pdf")
+outputFileInterDots<-paste0(outputDir,"/","wdots_",substr(fileName,1,(nchar(fileName)-4)),".pdf")
 plotInterpolationWithNewCases(cases.table, interp.table, input.table, minDate, outputFileInter, outputFileInterDots,country)
 
 # Write estimated theta table

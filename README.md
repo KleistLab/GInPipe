@@ -1,15 +1,16 @@
 # G*enome-based* In*cidence Estimation* Pipe*line*
 
-This pipeline was created as an easy-to-use tool to infer the trajectory of an effective population size (or incidence) for a viral pandemic from a collection of time-stamped viral sequences. The pipeline has, so far been tested for SARS-CoV-2.
+This pipeline infers the trajectory of an effective population size (or incidence) for a viral pandemic from a collection of time-stamped viral sequences. The pipeline has, so far been tested for SARS-CoV-2.
 In brief: Viral sequence data is placed into redundant temporal bins. For each bin, a parameter is inferred that correlates with the effective population size estimate (or incidence) of the infection. GInPipe then smoothes over all derived parameters and reconstructs continuous trajectory of the effective population size estimate (or incidence).
   -   [Operating systems and dependencies](#operating-systems-and-dependencies)
   -   [Input](#input)
-  -   [Demo data](#demo-data)
   -   [Running the pipeline](#running-the-pipeline)
       -   [1. Prerequisites](#1-prerequisites)
       -   [2. Initialization](#2-initialization)
       -   [3. Command execution](#3-command-execution)
   -   [Output](#output)
+  -   [Demo](#demo)
+  -   [Running the pipeline for SARS-CoV-2 on GISAID data](#running-the-pipeline-for-sars-cov-2-on-gisaid-data)
 
 ## Operating systems and dependencies
 
@@ -37,6 +38,8 @@ This workflow uses the following dependencies:
 
 They are installed automatically upon execution using the environment file [`env.yml`](./env/env.yml) and R scripts [`computeInterpolation.R`](./scripts/RScripts/splines/computeInterpolation.R) and [`computeR0.R`](./scripts/RScripts/splines/computeR0.R)
 
+Preparing the environment takes about 3 minutes.
+
 ## Input
 As an input the pipeline requires a file containing sequences and a file with a reference consensus sequence.
 
@@ -44,10 +47,6 @@ For the sequences it is important that they contain a sequencing-, or better, sa
 and can be either part of the sequence-name or provided in an additional file.
 - If the date is part of the sequence-name, then the name should look like this: **'some_name | %YYYY-%mm-%dd'**.   
 - If the date is provided in an additional file, add the date to corresponding FASTA headers.
-
-## Demo data
-
-A small demo sequence set and a reference sequence are included in repository folders [`raw`](./raw) and [`consensus`](./consensus) accordingly. To run the pipeline on the demo data set follow the instructions below. 
 
 ## Running the pipeline
 
@@ -88,6 +87,8 @@ conda install snakemake
 As input the pipeline requires names of the sequence file, the reference genome, and binning parameters.
 These variables are stored in [`config.yaml`](./config.yaml) and used as wildcards to create and link files with each other or as parameters for the binning. For more information about the YAML markup format refer to documentation: https://yaml.org
 
+The specified paths in the config file should either be absolute, or relative to the work environment specified with -d in the snakemake call (see 3.0).
+
 #### 2.1 Raw sequences
 The pipeline requires a file containing sequences, with the date in the sequence-name in GISAID format (date in format "%Y-%m-%d" at the end of header after a vertical bar).
 
@@ -100,7 +101,7 @@ If the headers in the sequence file do not contain the date, you can add it to h
 
 #### 2.2 Reported cases data file
 
-To compare estimated population dynamics with reported active cases, you can include a table in the folder [`reported_cases`](./reported_cases). Also provide the following parameters in the corresponding config field like this:
+To compare estimated population dynamics with reported active cases, provide the following parameters in the corresponding config field like this:
 
   ```
   reported_cases: ["path/to/reported_cases.csv","\t","date","active_cases","%m/%d/%y"]
@@ -115,7 +116,7 @@ If no reported cases data is provided, leave the fields empty like this:
   ```
 
 #### 2.3 Reference consensus sequence
-Copy and paste the file path of reference/consensus sequence into the variable **consensus** of [`config.yaml`](./config.yaml).
+Copy and paste the file path of reference/consensus sequence into the variable **consensus** of [`config.yaml`](./config.yaml). 
 
   ```
   consensus: "path/to/consensus/sequence.fasta"
@@ -168,9 +169,6 @@ snakemake --use-conda --snakefile GInPipe --configfile path/to/config.yaml -j -d
 
 The ---use-conda parameter allows Snakemake to install packages that are listed in the environment file [`env.yml`](./env/env.yml). With parameter --configfile you can give the configuration file [`config.yml`], described above. The -j parameter determines the number of available CPU cores to use in the pipeline. Optionally you can provide the number of cores, e.g. -j 4. With parameter -d you can set the work directory, i.e. where the results of the pipeline are written to.
 
-## Running the pipeline for SARS-CoV-2 on GISAID data
-Simply download sequence data from GISAID and adapt the path as explained in 2.1. Also download a reference sequence and add the path, as explained in 2.3. 
-
 ## Output
 The pipeline creates a folder **'results'**, containing all (intermediate) outputs, with the following structure:
 ```
@@ -210,3 +208,27 @@ The analysis results for different binning modes (plots and tables) can be found
 - In folder *r0* (if option to calculate reproduction number is chosen):
     -  *r0.csv*: table containing daily reproductive number estimates; calculated from the interpolated trajectory
     -  *r0.pdf*: plot of daily reproductive number estimates with confidence interval
+
+## Demo
+
+A demo sequence set and a reference sequence are included in repository folders [`demo`](./demo). 
+The directory contains a simulated data set with 
+
+- the reference sequence (demo_reference.fasta)
+- a fasta file containing the newly emerging sequences over time (demo_samples.fasta)
+- the underlying true number of emerging sequences (demo_reported_cases.tsv) 
+- the config file to call the pipeline with (demo_config.yaml)
+
+
+To run the pipeline go into the repository where the GInPipe file is located and run
+
+```
+snakemake --use-conda --snakefile GInPipe --configfile demo/demo_config.yaml -j -d demo
+```
+
+It may take about 3 minutes to prepare the environment and around 2 minutes to run the pipeline.
+The result folder is created in the [`demo`](./demo) folder where you find the output files, as described above.
+
+## Running the pipeline for SARS-CoV-2 on GISAID data
+
+To run the pipeline on real data, such as COVID sequences from GISAID, download the accordings sequence data as well as the reference sequence and adapt the paths in the config.yaml as explained in 2.1.and 2.3. 
