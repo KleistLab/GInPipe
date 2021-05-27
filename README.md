@@ -13,7 +13,7 @@ In brief: Viral sequence data is placed into redundant temporal bins. For each b
 
 ## Operating systems and dependencies
 
-This workflow was tested on macOS Mojave Version 10.14.4 and ... (Fill in MAUREEN!)
+This workflow was tested on macOS Mojave Version 10.14.4 and macOS Catalina 10.15.7.
 
 This workflow uses the following dependencies: 
 
