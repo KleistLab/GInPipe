@@ -14,7 +14,7 @@ In brief: Viral sequence data is placed into redundant temporal bins. For each b
 
 ## Operating systems and dependencies
 
-This workflow was tested on macOS Mojave Version 10.14.4 and macOS Catalina 10.15.7.
+This workflow was tested on macOS Mojave Version 10.14.4 and macOS Catalina Version 10.15.7.
 
 This workflow uses the following dependencies: 
 
@@ -230,8 +230,11 @@ snakemake --snakefile GInPipe --configfile demo/demo_config.yaml -j -d demo
 ```
 
 It may take around 2 minutes to run the pipeline.
-The result folder is created in the [`demo`](./demo) folder where you find the output files, as described above.
+The result folder is created in the [`demo`](./demo) folder where you find the output files, as described above. The incidence plot of the demo sample should look like this:
+
+![alt text](https://github.com/KleistLab/GInPipe/blob/main/demo/demo_result.png)
+
 
 ## Running the pipeline for SARS-CoV-2 on GISAID data
 
-To run the pipeline on real data, such as COVID sequences from GISAID, download the accordings sequence data as well as the reference sequence and adapt the paths in the config.yaml as explained in 2.1.and 2.3. 
+To run the pipeline on real data, such as COVID sequences from GISAID, download the according sequence data as well as the reference sequence and adapt the paths in the config.yaml as explained in 2.1. and 2.3. 
