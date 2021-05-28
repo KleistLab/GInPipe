@@ -7,7 +7,7 @@
 This pipeline infers the trajectory of an effective population size (or incidence) for a viral pandemic from a collection of time-stamped viral sequences. The pipeline has, so far been tested for SARS-CoV-2.
 In brief: Viral sequence data is placed into redundant temporal bins. For each bin, a parameter is inferred that correlates with the effective population size estimate (or incidence) of the infection. GInPipe then smoothes over all derived parameters and reconstructs continuous trajectory of the effective population size estimate (or incidence) [[1]](#1).
 
-  -   [Systemrequirements](#systemrequirements)
+  -   [System requirements](#system-requirements)
       -   [Operating systems](#operating-systems)
       -   [Prerequisites](#prerequisites)
       -   [Dependencies](#dependencies)
@@ -19,10 +19,10 @@ In brief: Viral sequence data is placed into redundant temporal bins. For each b
   -   [Demo](#demo)
   -   [Running the pipeline for SARS-CoV-2 on GISAID data](#running-the-pipeline-for-sars-cov-2-on-gisaid-data)
 
-## Systemrequirements
+## System requirements
 
 ### Operating systems
-This workflow was tested on macOS Mojave Version 10.14.4 and macOS Catalina 10.15.7.
+This workflow was tested on macOS Mojave Version 10.14.4 and macOS Catalina Version 10.15.7.
 
 ### Prerequisites
 Some tools have to be installed to run the analysis. We recommend following the steps below to set up the pipeline.
