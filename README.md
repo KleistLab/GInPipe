@@ -62,13 +62,16 @@ Conda will manage the dependencies of our pipeline. Instructions can be found he
 
 #### 1.2 Create the working environment
 
-Create a new environment where the pipeline will be executed, for example like this:
+Create a new environment from the given environment config in [`env.yml`](./env/env.yml), where the pipeline will be executed.
+Go to the main folder of the repository and call:
 
 ```
-conda create --name GInPipe
+conda env create -f env/env.yml
 ```
 
-Then to activate this environment, type:
+This step may take about 3 minutes.
+
+To activate the environment type:
 
 ```
 conda activate GInPipe
@@ -161,13 +164,13 @@ Other options for specifying this parameter also work. For examples see https://
 
 ### 3. Command execution
 
-To run the pipeline, go to the pipeline directory (where the Snakefile is) and activate the conda environment created in step 1.2. Then enter the following command to execute the pipeline:
+To run the pipeline, go to the pipeline directory (where the Snakefile named *GInPipe* is) and activate the conda environment created in step 1.2. Then enter the following command to execute the pipeline:
 
 ```
-snakemake --use-conda --snakefile GInPipe --configfile path/to/config.yaml -j -d path/to/workdir
+snakemake --snakefile GInPipe --configfile path/to/config.yaml -j -d path/to/workdir
 ```
 
-The ---use-conda parameter allows Snakemake to install packages that are listed in the environment file [`env.yml`](./env/env.yml). With parameter --configfile you can give the configuration file [`config.yml`], described above. The -j parameter determines the number of available CPU cores to use in the pipeline. Optionally you can provide the number of cores, e.g. -j 4. With parameter -d you can set the work directory, i.e. where the results of the pipeline are written to.
+With parameter --configfile you can give the configuration file [`config.yml`], described above. The -j parameter determines the number of available CPU cores to use in the pipeline. Optionally you can provide the number of cores, e.g. -j 4. With parameter -d you can set the work directory, i.e. where the results of the pipeline are written to.
 
 ## Output
 The pipeline creates a folder **'results'**, containing all (intermediate) outputs, with the following structure:
@@ -223,10 +226,10 @@ The directory contains a simulated data set with
 To run the pipeline go into the repository where the GInPipe file is located and run
 
 ```
-snakemake --use-conda --snakefile GInPipe --configfile demo/demo_config.yaml -j -d demo
+snakemake --snakefile GInPipe --configfile demo/demo_config.yaml -j -d demo
 ```
 
-It may take about 3 minutes to prepare the environment and around 2 minutes to run the pipeline.
+It may take around 2 minutes to run the pipeline.
 The result folder is created in the [`demo`](./demo) folder where you find the output files, as described above.
 
 ## Running the pipeline for SARS-CoV-2 on GISAID data
