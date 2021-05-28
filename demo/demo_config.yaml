@@ -1,18 +1,18 @@
-consensus: demo_reference.fasta
-days_per_bin:
-- 2
-- 6
-freq_cutoff: 2
+samples: demo_samples.fasta
 group: demo_samples
+consensus: demo_reference.fasta
 max_days_span: 20
 min_bin_size: 15
 min_days_span: 2
 number_per_bin: []
+days_per_bin:
+- 2
+- 6
+freq_cutoff: 2
 reported_cases:
 - demo_reported_cases.tsv
 - "\t"
 - date
 - reported_cases
 - '%Y-%m-%d'
-samples: demo_samples.fasta
 R0: y
