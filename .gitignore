@@ -7,3 +7,8 @@ logs
 ._
 #Snakemake
 .snakemake
+
+#python
+__pycache__
+*.pyc
+*.pyo
