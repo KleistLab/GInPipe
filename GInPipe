@@ -17,6 +17,12 @@ else:
 		input:
 			"results/incidence/incidence.csv"
 
+def get_reported_cases_params():
+    rep_cases = config["reported_cases"]
+    if len(rep_cases) == 0:
+        rep_cases = [""] * 5
+    return rep_cases
+
 
 rule strip_whitespaces:
 	input:
@@ -161,7 +167,7 @@ rule interpolation:
 	input:
 		infile = "results/bins_incidence/table_merged_phi_estimates_var_from_size.tsv"
 	params:
-		rep_cases = config["reported_cases"],
+		rep_cases = get_reported_cases_params(),
 		group = config["group"]
 	conda:
 		"env/env.yml"
@@ -169,7 +175,8 @@ rule interpolation:
 		result = "results/incidence/incidence.csv",
 	shell:
 		"Rscript {workflow.basedir}/scripts/incidence/computeInterpolation.R {input.infile} \
-		{params.group} {output.result} {params.rep_cases}"
+			{params.group} {output.result} {params.rep_cases[0]} '{params.rep_cases[1]}' \
+			{params.rep_cases[2]} {params.rep_cases[3]} {params.rep_cases[4]}"
 
 if config["R0"]:
 	rule r0:

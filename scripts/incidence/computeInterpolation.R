@@ -44,11 +44,19 @@ cat(c("Arguments: ", args, "\n"), sep = "\n")
 inputFile<-normalizePath(args[1])
 country = toString(args[2])
 outputFile<-file.path(args[3])
-table_name = args[4]
-table_delim = args[5]
-table_date_col = args[6]
-table_active_col = args[7]
-table_date_format = args[8]
+table_name = NA
+table_delim = NA
+table_date_col = NA
+table_active_col = NA
+table_date_format = NA
+if(length(args)==8) {
+  table_name = args[4]
+  table_delim = args[5]
+  table_date_col = args[6]
+  table_active_col = args[7]
+  table_date_format = args[8]
+}
+
 
 # A pre-set date format for metric output
 input_date_format = "%Y-%m-%d"
@@ -71,7 +79,8 @@ cases.table = data.frame(matrix(ncol=0,nrow=0))
 # Some fake date
 minDate1 <- integer(0)
 class(minDate1) <- "Date"
-if (!is.na(table_name)) {
+
+if (!is.na(table_name) && file.exists(table_name)) {
   cases.table.full = read.table(table_name, header=T, sep=table_delim)
   # change column names as they can be chosen flexibly, but we require date and new_cases
   names(cases.table.full)[names(cases.table.full) == table_date_col] <- "date"
