@@ -54,15 +54,11 @@ getScriptPath <- function(){
   if(length(script.dir) > 1) stop("can't determine script dir: more than one '--file' argument detected")
   return(script.dir)
 }
-this.dir <- getSrcDirectory(function(x) {x})
-if (rstudioapi::isAvailable()) {
-  this.dir <- dirname(rstudioapi::getActiveDocumentContext()$path)
-}else {
-  this.dir <- getScriptPath()
-}
+this.dir <- getScriptPath()
+
 setwd(this.dir)
 # load other r routines
-source("plotRoutines.r")
+source("plotRoutines.R")
 
 cat("--- Compute R0 ---\n\n")
 # R0 package

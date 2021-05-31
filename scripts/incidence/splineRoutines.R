@@ -1,11 +1,9 @@
-#library(ggformula)
-library(mgcv)
-#source("dateFormatRoutines.r")
 
 # t, time points for which to infer the derivative
 # gamToDerive, the spline/gam for which the derivatives are inferred
 #gamDerivative <- function(tt.df, gamToDerive, outputpath) {
 computeSplineDerivativeTable <- function(t, gamToDerive) {
+  library(mgcv)
   tt.df = data.frame(t=t)
 
   ## finite difference interval, delta t
@@ -78,6 +76,7 @@ calculateCI <- function(gam_mod_cs, xx) {
 }
 
 computeSpline <- function(input.table) {
+  library(mgcv)
   #input table must include a column with t, value and variance
 
   #number of data points
@@ -145,6 +144,7 @@ addSplineValuesForTrueN <- function(input.table, gam.table) {
 }
 
 computeSplineNewCasesTable <- function(input.table) {
+  library(mgcv)
   # optimize k (degree of freedom)
   k=5
   edf_act=1

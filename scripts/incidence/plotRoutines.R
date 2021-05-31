@@ -1,7 +1,6 @@
-#library('latex2exp')
 library(ggplot2)
 library(grid)
-source("dateFormatRoutines.r")
+source("dateFormatRoutines.R")
 
 plotR0Package <- function(rzero.table,method,outputFile){
   p_interp_d1 <- ggplot() +

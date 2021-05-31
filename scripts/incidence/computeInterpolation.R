@@ -14,7 +14,7 @@ dynamic_require <- function(package){
 }
 
 #"ggformula"
-for(p in c("ggplot2", "mgcv","MASS","R0","scales")) {
+for(p in c("ggplot2","MASS","R0","scales")) {
   dynamic_require(p)
 }
 
@@ -113,19 +113,20 @@ getScriptPath <- function(){
   if(length(script.dir) > 1) stop("can't determine script dir: more than one '--file' argument detected")
   return(script.dir)
 }
-this.dir <- getSrcDirectory(function(x) {x})
-if (rstudioapi::isAvailable()) {
-  this.dir <- dirname(rstudioapi::getActiveDocumentContext()$path)
-}else {
-  this.dir <- getScriptPath()
-}
+this.dir <- getScriptPath()
+
+#getSrcDirectory(function(x) {x})
+#if (rstudioapi::isAvailable()) {
+#  this.dir <- dirname(rstudioapi::getActiveDocumentContext()$path)
+#}else {
+#  this.dir <- getScriptPath()
+#}
 setwd(this.dir)
 # load other r routines
-source("plotRoutines.r")
-source("dateFormatRoutines.r")
-source("splineRoutines.r")
 
-
+source("dateFormatRoutines.R")
+source("splineRoutines.R")
+source("plotRoutines.R")
 # minDate to use in all plotted tables
 minDate2 = min(as.Date(input.table$meanBinDate,input_date_format))
 minDates <- c(minDate1,minDate2)
@@ -155,7 +156,6 @@ interp.table[is.na(interp.table)] = 0
 interp.table <- interp.table[interp.table$smoothMedian != 0,]
 # Add date column
 interp.table$date <- days.as.Date(interp.table$t, minDate)
-
 # Write tables and plot
 write.csv(interp.table,paste0(outputDir,"/",fileName), row.names = F, col.names = T)
 outputFileInter<-paste0(outputDir,"/",substr(fileName,1,(nchar(fileName)-4)),".pdf")
