@@ -22,7 +22,7 @@ In brief: Viral sequence data is placed into redundant temporal bins. For each b
 ## System requirements
 
 ### Operating systems
-This workflow was tested on macOS Mojave Version 10.14.4 and macOS Catalina Version 10.15.7.
+This workflow was tested on macOS Mojave Version 10.14.4 and macOS Catalina Version 10.15.7, as well as Ubuntu 
 
 ### Prerequisites
 Some tools have to be installed to run the analysis. We recommend following the steps below to set up the pipeline.
@@ -51,10 +51,30 @@ conda activate GInPipe
 
 #### Install Snakemake
 
-Snakemake is the workflow management system we use. Install it like this:
+Snakemake is the workflow management system we use. Install it in your activated environment like this:
+
+```
+conda install snakemake
+```
+
+NOTE: In case conda is not able to find the packages for snakemake (which was the case for the Linux version), you can install mamba in your environment 
+
+```
+conda install -c conda-forge mamba
+```
+
+and download snakemake with 
 
 ```
 mamba install -c conda-forge -c bioconda snakemake
+```
+
+#### Install R
+
+To run R routines, R including Rscript needs to be installed for the workflow. If it is not yet, you can install it together with the needed packages in your activated environment with conda or mamba 
+
+```
+mamba install -c conda-forge -c bioconda r-base r-ggplot2 r-r0 r-mass r-scales
 ```
 
 ### Dependencies
@@ -81,7 +101,7 @@ This workflow uses the following dependencies:
 They are installed automatically upon execution using the environment file [`env.yml`](./env/env.yml) and R scripts [`computeInterpolation.R`](./scripts/RScripts/splines/computeInterpolation.R) and [`computeR0.R`](./scripts/RScripts/splines/computeR0.R)
 
 ## Input
-As an input the pipeline requires a file containing sequences and a file with a reference consensus sequence.
+As an input, the pipeline requires a file containing sequences and a file with a reference consensus sequence.
 
 For the sequences it is important that they contain a sequencing-, or better, sample-date. The date must have the format **%YYYY-%mm-%dd**
 and can be either part of the sequence-name or provided in an additional file.
@@ -122,7 +142,7 @@ In the field **group**, you can provide a name for the given samples, for exampl
 To compare estimated population dynamics with reported active cases, provide the following parameters in the corresponding config field like this:
 
   ```
-  reported_cases: ["path/to/reported_cases.csv","\t","date","active_cases","%m/%d/%y"]
+  reported_cases: ["path/to/reported_cases.csv","\t","date","new_cases","%m/%d/%y"]
   ```
 
 where the first element of the list is the file name with format extension, the second element is the delimiter type in this file, date column name, active cases column name, and a format the date is stored in.
