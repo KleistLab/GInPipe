@@ -41,7 +41,7 @@ Go to the main folder of the repository and call:
 conda env create -f env/env.yml
 ```
 
-This step may take about 3 minutes.
+This step may take a few minutes.
 
 To activate the environment type:
 
