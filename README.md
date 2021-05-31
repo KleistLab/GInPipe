@@ -54,7 +54,7 @@ conda activate GInPipe
 Snakemake is the workflow management system we use. Install it like this:
 
 ```
-conda install snakemake
+mamba install -c conda-forge -c bioconda snakemake
 ```
 
 ### Dependencies
