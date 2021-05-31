@@ -72,8 +72,7 @@ This workflow uses the following dependencies:
   - scipy
   - matplotlib
   - minimap2
-  - ggplot2 
-  - mgcv
+  - ggplot2
   - MASS
   - R0
   - scales
