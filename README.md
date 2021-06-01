@@ -238,7 +238,7 @@ The pipeline creates a folder **'results'**, containing all (intermediate) outpu
     │               ├── header_*.tsv            # header files (seq. name & date)
     |               ├── range_*.tsv             # range of dates of the corresponding bin
     |               └── list_of_files.tsv       # list of file names in the binning mode
-    │   ├── bins_incidence                      # Individual binning results plots (and tables)
+    │   ├── bins_incidence                      # Individual binning results tables
     │   ├── meta                                # Meta information about all used sequences (name and collection date)
     │   ├── incidence                           # Plots and tables for final interpolated trajectory
     |       ├── incidence.csv                   # table with interpolated population size estimates
