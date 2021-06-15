@@ -11,11 +11,11 @@ report: "report/workflow.rst"
 if config["R0"]:
 	rule all:
 		input:
-			"results/r0/r0.csv"
+			"results/r0/r0_"+config["group"]+".csv"
 else:
 	rule all:
 		input:
-			"results/incidence/incidence.csv"
+			"results/incidence/incidence_"+config["group"]+".csv"
 
 def get_reported_cases_params():
     rep_cases = config["reported_cases"]
@@ -172,7 +172,7 @@ rule interpolation:
 	conda:
 		"env/env.yml"
 	output:
-		result = "results/incidence/incidence.csv",
+		result = "results/incidence/incidence_"+config["group"]+".csv",
 	shell:
 		"Rscript {workflow.basedir}/scripts/incidence/computeInterpolation.R {input.infile} \
 			{params.group} {output.result} {params.rep_cases[0]} '{params.rep_cases[1]}' \
@@ -181,9 +181,9 @@ rule interpolation:
 if config["R0"]:
 	rule r0:
 		input:
-			infile = "results/incidence/incidence.csv"
+			infile = "results/incidence/incidence_"+config["group"]+".csv"
 		output:
-			outfile = "results/r0/r0.csv"
+			outfile = "results/r0/r0_"+config["group"]+".csv"
 		conda:
 			"env/env.yml"
 		shell:

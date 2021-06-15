@@ -164,4 +164,4 @@ plotInterpolationWithNewCases(cases.table, interp.table, input.table, minDate, o
 
 # Write estimated theta table
 input.table.clean <- data.frame(date=input.table$meanBinDate,phi=input.table$value,variance=input.table$variance)
-write.csv(input.table.clean,paste0(outputDir,"/phi_estimate.csv"), row.names = F)
+write.csv(input.table.clean,paste0(outputDir,"/phi_estimate_",country,".csv"), row.names = F)
