@@ -103,7 +103,7 @@ They are installed automatically upon execution using the environment file [`env
 ## Input
 As an input, the pipeline requires a file containing sequences and a file with a reference consensus sequence.
 
-For the sequences it is important that they contain a sequencing-, or better, sample-date. The date must have the format **%YYYY-%mm-%dd**
+For the sequences it is important that they contain a sequencing-, or better, sampling-date. The date must have the format **%YYYY-%mm-%dd**
 and can be either part of the sequence-name or provided in an additional file.
 - If the date is part of the sequence-name, then the name should look like this: **'some_name|%YYYY-%mm-%dd'**.   
 - If the date is provided in an additional file, add the date to corresponding FASTA headers.

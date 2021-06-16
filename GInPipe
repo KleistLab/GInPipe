@@ -11,7 +11,7 @@ report: "report/workflow.rst"
 if config["R0"]:
 	rule all:
 		input:
-			"results/r0/r0_"+config["group"]+".csv"
+			"results/Re/Re_"+config["group"]+".csv"
 else:
 	rule all:
 		input:
@@ -174,18 +174,18 @@ rule interpolation:
 	output:
 		result = "results/incidence/incidence_"+config["group"]+".csv",
 	shell:
-		"Rscript {workflow.basedir}/scripts/incidence/computeInterpolation.R {input.infile} \
+		"Rscript {workflow.basedir}/scripts/incidence/computeSmoothValues.R {input.infile} \
 			{params.group} {output.result} {params.rep_cases[0]} '{params.rep_cases[1]}' \
 			{params.rep_cases[2]} {params.rep_cases[3]} {params.rep_cases[4]}"
 
 if config["R0"]:
-	rule r0:
+	rule re:
 		input:
 			infile = "results/incidence/incidence_"+config["group"]+".csv"
 		output:
-			outfile = "results/r0/r0_"+config["group"]+".csv"
+			outfile = "results/Re/Re_"+config["group"]+".csv"
 		conda:
 			"env/env.yml"
 		shell:
-			"Rscript {workflow.basedir}/scripts/incidence/computeR0.R {input.infile} \
+			"Rscript {workflow.basedir}/scripts/incidence/computeRe.R {input.infile} \
 			{output.outfile}"

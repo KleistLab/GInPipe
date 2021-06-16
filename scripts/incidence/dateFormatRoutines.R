@@ -39,29 +39,3 @@ days.as.Date <- function(days, minDate) {
 as.lastDayOfWeek <- function(week, year) {
   return(as.Date(x = paste0(year, "-",week,"-7"), format = "%Y-%W-%u"))
 }
-#
-# fix.date.format <- function(dates) {
-#   dates.str <- c()
-#   date.format <- "%Y-%m-%d"
-#   date.trunc1 <- "%Y-%m"
-#   date.trunc2 <- "%Y"
-#   for (i in (1:length(dates))) {
-#     if (is.na(as.Date(dates[i], date.format))) {
-#       print(dates[i])
-#       if (!is.na(as.Date(dates[i], date.trunc1))) {
-#         date <- as.Date(paste0(toString(dates[i]), "-15"), format = "%Y-%m-%d")
-#         print(date)
-#         dates.str <- c(dates.str,date)
-#       }
-#       else if (!is.na(as.Date(dates[i], date.trunc2))) {
-#         date <- as.Date(paste0(toString(dates[i]), "-03-01"), format = "%Y-%m-%d")
-#         print(date)
-#         dates.str <- c(dates.str,date)
-#       }
-#     }
-#     else {
-#       dates.str <- c(dates.str, toString(dates[i]))
-#     }
-#   }
-#   return(dates)
-# }
