@@ -7,8 +7,6 @@ library(scales)
 #' @param re.table a data frame containing a column "value" with R_e estimates, values "lower" and "upper" for the confidence interval and a column "date" 
 #' @param outputFile (optional) The Re plot is written to this file
 #' @param title (optional) a vector of time points which should be interpolated
-
-
 plot_Re <- function(re.table, outputFile=NULL, title=NULL){
   p_interp_d1 <- ggplot() +
     geom_line(aes(x=as.Date(re.table$date,"%Y-%m-%d"), y=re.table$value), colour="darkred", size=2, alpha=0.7)+
@@ -44,8 +42,7 @@ plot_Re <- function(re.table, outputFile=NULL, title=NULL){
 #' @param outputFile (optional) The plot without point estimates is written to this file
 #' @param outputFileDots (optional) The plot with point estimates is written to this file
 #' @param cases.table (optional) The data frame containing the reported cases with the rolling average in column "new_cases_avrg" and "date
-#' @param title (optional) For the title of the plot.
-
+#' @param title (optional) For the title of the plot
 plot_smoothed_phi_with_new_cases <- function(smooth.table, point.table=NULL, cases.table=NULL, outputFile=NULL, outputFileDots=NULL, title=NULL) {
     
   mycolors <- c("estid"="dodgerblue4", "trued"="darkred","esti"="dodgerblue4", "true"="red")
