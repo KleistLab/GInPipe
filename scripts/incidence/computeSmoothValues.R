@@ -168,7 +168,8 @@ if(file.exists(inputFile)) {
 
   cat("--- Write output tables and plots ---\n\n")
   # Write estimated theta table
-  point.table.clean <- data.frame(date=point.table$meanBinDate,phi=point.table$value,variance=point.table$variance)
+  point.table.clean <- data.frame(date=point.table$meanBinDate, phi=point.table$value, variance=point.table$variance,
+                                  sampleSize=point.table$sampleSize, haplotypes=point.table$haplotypes, numMut=point.table$numMut)
   write.csv(point.table.clean,paste0(outputDir,"/phi_estimate_",country,".csv"), row.names = F)
 } else {
   cat(paste0("\n Input table does not exist. Please check if the path is set correctly.\n"))
