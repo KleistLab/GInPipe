@@ -48,7 +48,7 @@ class SAM:
     def _create_sequence_map(self):
         '''
         WORKAROUND: make binning faster, by mapping for each unique sequence its index
-        :return:
+        :return: sequence dictionary
         '''
         # crate map of each sequence where to find it
         seq_dict = {}
@@ -60,7 +60,7 @@ class SAM:
     def _write_dates_meta(self, idx_dates):
         filename = "meta_dates.tsv"
         os.makedirs(self.meta_dir, exist_ok=True)
-        filepath = str(self.meta_dir)+'/'+filename
+        filepath = "%s/%s" % (str(self.meta_dir), filename)
         with open(filepath, 'w+', newline='') as csvfile:
             writer = csv.writer(csvfile, delimiter='\t',
                                 quotechar='|', quoting=csv.QUOTE_MINIMAL)
@@ -116,7 +116,7 @@ class SAM:
 
         :param method: string
         :param n_bins: int
-        :return:
+        :return: 
         """
         filepath = self.bins_dir / folder
         basename = os.path.basename(self.samfile_path)
@@ -150,9 +150,9 @@ class SAM:
             if seq_bin_dict is not None:
                 if read.query_name in seq_bin_dict:
                     bin_idx = seq_bin_dict[read.query_name]
-                    tmpfile = str(filenames[bin_idx])+".tmp"
+                    tmpfile = "%s.tmp" % str(filenames[bin_idx])
                     if not os.path.exists(tmpfile):
-                        print("Writing bin " + str(bin_idx))
+                        print("Writing bin %s" % str(bin_idx))
                         with pysam.AlignmentFile(str(tmpfile), "w", header=self.header) as outfile:
                             outfile.write(read)
                     else:
@@ -161,7 +161,7 @@ class SAM:
         #Workaround: How to append in a BAM file, or how to print binary into a BAM file?
         print("Convert SAM to BAM")
         for filename in filenames:
-            tmpfile = str(filename)+".tmp"
+            tmpfile = "%s.tmp" % str(filename)
             if os.path.exists(tmpfile):
                 infile = pysam.AlignmentFile(tmpfile, "r")
                 with  pysam.AlignmentFile(filename, "wb", template=infile) as bamfile:
@@ -171,9 +171,6 @@ class SAM:
             #also create empty bam for downstream stuff
             #else:
              #  open(filename, 'w+')
-
-
-
 
 
     def _write_header(self, filenames, indices):

@@ -46,8 +46,8 @@ reffile_dir = str(snakemake.params.reference)
 with open(str(reffile_dir), "r") as file:
     header = file.readline()
 param3 = header.strip(">")
-param3 = param3.strip("\n")
-sam = SAM(SAM_PATH, bins_dir, meta_dir, param1, param2, param3)
+param3header = param3.strip("\n")
+sam = SAM(SAM_PATH, bins_dir, meta_dir, param1, param2, param3header)
 
 print('-' * 80)
 print("Bins of equal Size")
@@ -82,7 +82,7 @@ bins = os.listdir(str(bins_dir))
 bins_filter = list(filter(lambda x: not x.startswith('.'), bins))
 
 for folder in bins_filter:
-    files = os.listdir(str(bins_dir)+"/"+folder)
+    files = os.listdir("%s/%s" % (bins_dir, folder))
     headers = list(filter(lambda x: x.startswith('header'), files))
     files_filter = list(filter(lambda x: x.startswith('bin'), files))
     ranges_filter = list(filter(lambda x: x.startswith('range'), files))
@@ -90,22 +90,22 @@ for folder in bins_filter:
     headers.sort()
     ranges_filter.sort()
     for i,hfile in enumerate(headers):
-        table = pd.read_table(str(bins_dir)+"/"+folder+"/"+hfile,delimiter='\t',header=0)
+        table = pd.read_table("%s/%s/%s" % (bins_dir, folder, hfile),delimiter='\t',header=0) 
         if table.empty:
-            bam_name = str(bins_dir)+"/"+folder+"/"+files_filter[i]
-            header_name = str(bins_dir)+"/"+folder+"/"+headers[i]
-            range_name = str(bins_dir)+"/"+folder+"/"+ranges_filter[i]
+            bam_name = "%s/%s/%s" % (bins_dir, folder, files_filter[i])
+            header_name = "%s/%s/%s" % (bins_dir, folder, headers[i])
+            range_name = "%s/%s/%s" % (bins_dir, folder, ranges_filter[i])
             subprocess.call("rm %s" % bam_name, shell=True)
             subprocess.call("rm %s" % header_name, shell=True)
             subprocess.call("rm %s" % range_name, shell=True)
         else:
-            bam_name = str(bins_dir)+"/"+folder+"/"+files_filter[i]
+            bam_name = "%s/%s/%s" % (bins_dir, folder, files_filter[i])
             subprocess.call("samtools index %s" % bam_name, shell=True)
-    files = os.listdir(str(bins_dir)+"/"+folder)
+    files = os.listdir("%s/%s" % (bins_dir, folder))
     files_filter = list(filter(lambda x: x.endswith('.bam'), files))
     files_filter.sort()
     name_file = "list_of_files.tsv"
-    file_path = str(bins_dir)+"/"+folder+"/"+name_file
+    file_path = "%s/%s/%s" % (bins_dir, folder, name_file)
     with open(file_path, 'w+', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter='\t',
                                 quotechar='|', quoting=csv.QUOTE_MINIMAL)
@@ -113,7 +113,7 @@ for folder in bins_filter:
             writer.writerow([files_filter[i]])
 
 name_file = "list_of_binnings.tsv"
-file_path = str(bins_dir)+'/'+name_file
+file_path = "%s/%s" % (bins_dir, name_file)
 with open(file_path, 'w+', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter='\t',
                                 quotechar='|', quoting=csv.QUOTE_MINIMAL)

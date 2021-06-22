@@ -19,6 +19,9 @@ from modular_theta_from_dict import analyzeTrajectory
 from parameter_est import parameterEstimation
 
 
+import random
+
+
 # Output path
 out_dir = Path(snakemake.output[0]).parent
 RESULT_PATH = Path(os.getcwd()) / "results"
@@ -57,8 +60,8 @@ bin_merging_data = []
 
 #List individual binning directories
 for folder in binnings:
-    binnings_dir = str(bins_dir) + '/' + folder
-    headers_dir = str(head_dir) + '/' + folder
+    binnings_dir = "%s/%s" % (bins_dir, folder)
+    headers_dir = "%s/%s" % (head_dir, folder)
 
     list_files = os.listdir(binnings_dir)
     bam_files = []
@@ -80,7 +83,7 @@ for folder in binnings:
     print("Current binning folder: ",folder)
     print("      Starting to record mutant positions from CIGAR strings...")
     for filename in files:
-        path = binnings_dir+'/'+filename
+        path = "%s/%s" % (binnings_dir, filename)
         sam_to_fp = SAMtoFP(path,reference,refname)
         seq_lbase, seq_posbase, lref, mutants_pairs_list = sam_to_fp.writeFP()
         seq_list_base_complete.append(seq_lbase)
@@ -92,6 +95,18 @@ for folder in binnings:
     filt = parameterEstimation(seq_list_base_complete,seq_list_pairs_complete,reference,freqCutoff)
     mut_proportion, filtered_seqset = filt.run()
     print("      Done.\n")
+
+    # filtered_seqset = []
+    # for b in filt_seqset:
+    #     if len(b)<200:
+    #         filtered_seqset.append(b)
+    #     else:
+    #         subs = random.sample(b, 200)
+    #         filtered_seqset.append(subs)
+
+
+    #for b in filtered_seqset:
+
 
     # Time span calculation
     # 1. Get the names of reads from headers and dates
@@ -119,7 +134,7 @@ for folder in binnings:
     # later check if the bin is "long enough"
     num_days_per_bin = []
     for header_file in headers:
-        path = headers_dir + '/' + header_file
+        path = "%s/%s" % (headers_dir,header_file)
         table = pd.read_table(path, header=0)
         if not table.empty:
             dates = table['date'].tolist()
@@ -151,22 +166,22 @@ for folder in binnings:
 
 
     # Write bin file
-    name_table = "table_"+file_suffix+"_"+folder+"_phi_estimate_var_from_size.tsv"
-    table_path = str(out_dir) + '/' + name_table
+    name_table = "table_%s_%s_phi_estimate_var_from_size.tsv" % (file_suffix, folder)
+    table_path = "%s/%s" % (out_dir, name_table)
     with open(table_path, 'w+', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter='\t',
                                 quotechar='|', quoting=csv.QUOTE_MINIMAL)
         writer.writerow(["date","value","variance_size","variance_mle","num_seqs","times",
-                         "num_days_per_bin", "median_date", "min_date", "max_date", "haplotypes", "num_mut"])
+                         "num_days_per_bin", "median_date", "min_date", "max_date"])
         for i in range(len(weeks)):
             writer.writerow([mean_header_bin[i], thetas[i], variance_size[i], variance[i], num_seqs[i], times[i],
-                             num_days_per_bin[i], median_dates[i], min_dates[i], max_dates[i], origins[i], num_mut[i]])
+                             num_days_per_bin[i], median_dates[i], min_dates[i], max_dates[i]])
     print("      Done.\n")
     # Write to merged bins dataset
     for i, date in enumerate(mean_header_bin):
         if not i+1 == len(mean_header_bin):
             bin_merging_data.append((mean_header_bin[i], thetas[i], variance_size[i], variance[i], num_seqs[i],
-                                     times[i], num_days_per_bin[i], median_dates[i], max_dates[i], folder, origins[i], num_mut[i]))
+                                     times[i], num_days_per_bin[i], median_dates[i], max_dates[i], folder))
 
 
 print("\n      Making the final results table...")
@@ -175,19 +190,19 @@ bin_merging_data_ = sorted(bin_merging_data)
 times = np.arange(0, len(bin_merging_data_))
 name_table = "table_merged_phi_estimates_var_from_size.tsv"
 
-table_path = str(out_dir) + '/' + name_table
+table_path = "%s/%s" % (out_dir, name_table)
 
 with open(table_path, 'w+', newline='') as csvfile:
     writer = csv.writer(csvfile, delimiter='\t',
                             quotechar='|', quoting=csv.QUOTE_MINIMAL)
     writer.writerow(["t","value","variance","meanBinDate","sampleSize",
-                     "daysPerBin", "medianBinDate", "maxBinDate", "binning", "haplotypes", "numMut"])
+                     "daysPerBin", "medianBinDate", "maxBinDate", "binning"])
     for i in range(len(times)):
         # If bin size==1/variance is bigger or equal to min_bin_size
         # if maxsize, minsize satisfied
         if bin_merging_data_[i][2]<=1/int(min_bin_size) and bin_merging_data_[i][6]>=min_days_span and bin_merging_data_[i][6]<=max_days_span:
             writer.writerow([times[i],bin_merging_data_[i][1],bin_merging_data_[i][2], bin_merging_data_[i][0],
                             bin_merging_data_[i][4],bin_merging_data_[i][6],bin_merging_data_[i][7],
-                            bin_merging_data_[i][8],bin_merging_data_[i][9],bin_merging_data_[i][10], bin_merging_data_[i][11]])
+                            bin_merging_data_[i][8],bin_merging_data_[i][9]])
 
 print("Done.\n")
