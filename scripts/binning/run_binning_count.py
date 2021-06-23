@@ -47,6 +47,7 @@ with open(str(reffile_dir), "r") as file:
     header = file.readline()
 param3 = header.strip(">")
 param3header = param3.strip("\n")
+print('Reference sequence header: %s' % param3header)
 sam = SAM(SAM_PATH, bins_dir, meta_dir, param1, param2, param3header)
 
 print('-' * 80)
@@ -95,22 +96,12 @@ for folder in bins_filter:
             bam_name = "%s/%s/%s" % (bins_dir, folder, files_filter[i])
             header_name = "%s/%s/%s" % (bins_dir, folder, headers[i])
             range_name = "%s/%s/%s" % (bins_dir, folder, ranges_filter[i])
-            subprocess.call("rm %s" % bam_name, shell=True)
-            subprocess.call("rm %s" % header_name, shell=True)
-            subprocess.call("rm %s" % range_name, shell=True)
+            subprocess.check_call("rm %s" % bam_name, shell=True)
+            subprocess.check_call("rm %s" % header_name, shell=True)
+            subprocess.check_call("rm %s" % range_name, shell=True)
         else:
             bam_name = "%s/%s/%s" % (bins_dir, folder, files_filter[i])
-            subprocess.call("samtools index %s" % bam_name, shell=True)
-    files = os.listdir("%s/%s" % (bins_dir, folder))
-    files_filter = list(filter(lambda x: x.endswith('.bam'), files))
-    files_filter.sort()
-    name_file = "list_of_files.tsv"
-    file_path = "%s/%s/%s" % (bins_dir, folder, name_file)
-    with open(file_path, 'w+', newline='') as csvfile:
-        writer = csv.writer(csvfile, delimiter='\t',
-                                quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        for i in range(len(files_filter)):
-            writer.writerow([files_filter[i]])
+            subprocess.check_call("samtools index %s" % bam_name, shell=True)
 
 name_file = "list_of_binnings.tsv"
 file_path = "%s/%s" % (bins_dir, name_file)
