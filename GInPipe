@@ -144,9 +144,21 @@ rule run_binning:
 	script:
 		"scripts/binning/run_binning_count.py"
 
-rule incidence_estimates:
+rule remove_empty_bins:
 	input:
 		"results/bins/list_of_binnings.tsv"
+	output:
+		"results/bins/list_of_binnings_filtered.tsv"
+	conda:
+		"env/env.yml"
+	log:
+		"logs/binning_filter.log"
+	script:
+		"scripts/binning/erase_empty_bins.py"
+
+rule incidence_estimates:
+	input:
+		"results/bins/list_of_binnings_filtered.tsv"
 	output:
 		"results/bins_incidence/table_merged_phi_estimates_var_from_size.tsv"
 	params:
