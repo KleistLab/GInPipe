@@ -11,11 +11,11 @@ report: "report/workflow.rst"
 if config["R0"]:
 	rule all:
 		input:
-			"results/r0/r0.csv"
+			"results/Re/Re_"+config["group"]+".csv"
 else:
 	rule all:
 		input:
-			"results/incidence/incidence.csv"
+			"results/incidence/incidence_"+config["group"]+".csv"
 
 def get_reported_cases_params():
     rep_cases = config["reported_cases"]
@@ -61,7 +61,7 @@ rule samtools_dict:
 	input:
 		expand("{reference}", reference=config["consensus"])
 	output:
-		expand("{reference}.dict", reference=config["consensus"][:-6])
+		expand("{reference}.dict", reference=config["consensus"][:-5])
 	shell:
 		"samtools dict {input} -o {output}"
 
@@ -69,7 +69,7 @@ rule minimap_index_ref:
 	input:
 		expand("{reference}", reference=config["consensus"])
 	output:
-		expand("{reference}.mmi", reference=config["consensus"][:-6])
+		expand("{reference}.mmi", reference=config["consensus"][:-5])
 	conda:
 		"env/env.yml"
 	shell:
@@ -77,7 +77,7 @@ rule minimap_index_ref:
 
 rule minimap:
 	input:
-		ref = expand("{reference}.mmi", reference=config["consensus"][:-6]),
+		ref = expand("{reference}.mmi", reference=config["consensus"][:-5]),
 		s = "results/raw/{sample}_fixed12.fasta"
 	output:
 		"results/bam/{sample}.bam"
@@ -184,20 +184,20 @@ rule interpolation:
 	conda:
 		"env/env.yml"
 	output:
-		result = "results/incidence/incidence.csv",
+		result = "results/incidence/incidence_"+config["group"]+".csv",
 	shell:
-		"Rscript {workflow.basedir}/scripts/incidence/computeInterpolation.R {input.infile} \
+		"Rscript {workflow.basedir}/scripts/incidence/computeSmoothValues.R {input.infile} \
 			{params.group} {output.result} {params.rep_cases[0]} '{params.rep_cases[1]}' \
 			{params.rep_cases[2]} {params.rep_cases[3]} {params.rep_cases[4]}"
 
 if config["R0"]:
-	rule r0:
+	rule re:
 		input:
-			infile = "results/incidence/incidence.csv"
+			infile = "results/incidence/incidence_"+config["group"]+".csv"
 		output:
-			outfile = "results/r0/r0.csv"
+			outfile = "results/Re/Re_"+config["group"]+".csv"
 		conda:
 			"env/env.yml"
 		shell:
-			"Rscript {workflow.basedir}/scripts/incidence/computeR0.R {input.infile} \
+			"Rscript {workflow.basedir}/scripts/incidence/computeRe.R {input.infile} \
 			{output.outfile}"
