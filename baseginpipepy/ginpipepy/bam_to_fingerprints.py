@@ -100,33 +100,34 @@ class SAMtoFP:
 
         # Ambiguous bases list
         amblist = ['W', 'S', 'M', 'K', 'R', 'Y', 'B', 'D', 'H', 'V', 'N', 'Z']
-        for i in range(len(cigar)):
-            if cigar[i][0]==0:
-                counter += cigar[i][1]
+        for i,cigtuple in enumerate(cigar):
+            operation, length = cigtuple
+            if operation==0:
+                counter += length
                 #if counter > 21544:
                 #    break
-                counter_q += cigar[i][1]
-            elif cigar[i][0]==1:
-                counter_q += cigar[i][1]
-            elif cigar[i][0]==2:
-                counter += cigar[i][1]
+                counter_q += length
+            elif operation==1:
+                counter_q += length
+            elif operation==2:
+                counter += length
                 #if counter > 21544:
                 #   break
-            elif cigar[i][0]==3:
-                counter += cigar[i][1]
+            elif operation==3:
+                counter += length
                 #if counter > 21544:
                  #   break
-            elif cigar[i][0]==4:
-                counter_q += cigar[i][1]
-            elif  cigar[i][0]==7:
-                counter += cigar[i][1]
+            elif operation==4:
+                counter_q += length
+            elif operation==7:
+                counter += length
                 #if counter > 21544:
                 #    break
-                counter_q += cigar[i][1]
+                counter_q += length
             # Record base that is a mismatch (X) on both query and reference counters
-            elif cigar[i][0]==8:
+            elif operation==8:
                 # Also write the mutation event in the string/fingerprint +ref_seq[counter]+'>'
-                for j in range(cigar[i][1]):
+                for j in range(length):
                     alt_rec = str(counter+1)
                     alt_base = seq[counter_q]
                     if str(alt_base)!='N':
