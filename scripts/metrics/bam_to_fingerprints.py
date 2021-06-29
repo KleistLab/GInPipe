@@ -17,7 +17,7 @@ class SAMtoFP:
         self.filename = filename
         self.reference = reffile
         self.ref_name = refname
-        
+
     def _ambiguousDict(self, base, refbase):
         """
         Calls ambiguous bases if reference base is not included in the possible calls
@@ -53,11 +53,11 @@ class SAMtoFP:
                     variant = possvar[i-1]
 
         return variant
-            
-    
+
+
     def _cigarToFP(self, seq, cigar, start, name):
         """
-        Translates CIGAR strings to sequence fingerprints in format 
+        Translates CIGAR strings to sequence fingerprints in format
         Position>Mutant_base
         CIGAR string signatures are taken in form of Pysam cigartuple in format:
             (operation,length)
@@ -78,7 +78,7 @@ class SAMtoFP:
         :param name: name of query sequence
         :return mutantsstrbase: fingerprints per sequence as one string
         :return mutants_pos_list: fingerprints per sequence as list of strings
-        :return mutants_pairs_list: fingerprints per sequence as pairs of 
+        :return mutants_pairs_list: fingerprints per sequence as pairs of
             sequence positions and mutant bases
         """
         # SeqIO the reference file
@@ -97,36 +97,37 @@ class SAMtoFP:
         mutants_pos = 0
         mutants_pos_list = []
         mutants_pairs_list = []
-       
+
         # Ambiguous bases list
         amblist = ['W', 'S', 'M', 'K', 'R', 'Y', 'B', 'D', 'H', 'V', 'N', 'Z']
-        for i in range(len(cigar)):
-            if cigar[i][0]==0:
-                counter += cigar[i][1]
+        for i,cigtuple in enumerate(cigar):
+            operation, length = cigtuple
+            if operation==0:
+                counter += length
                 #if counter > 21544:
                 #    break
-                counter_q += cigar[i][1]
-            elif cigar[i][0]==1:
-                counter_q += cigar[i][1]
-            elif cigar[i][0]==2:
-                counter += cigar[i][1]
+                counter_q += length
+            elif operation==1:
+                counter_q += length
+            elif operation==2:
+                counter += length
                 #if counter > 21544:
                 #   break
-            elif cigar[i][0]==3:
-                counter += cigar[i][1]
+            elif operation==3:
+                counter += length
                 #if counter > 21544:
                  #   break
-            elif cigar[i][0]==4:
-                counter_q += cigar[i][1]
-            elif  cigar[i][0]==7:
-                counter += cigar[i][1]
+            elif operation==4:
+                counter_q += length
+            elif operation==7:
+                counter += length
                 #if counter > 21544:
                 #    break
-                counter_q += cigar[i][1]
+                counter_q += length
             # Record base that is a mismatch (X) on both query and reference counters
-            elif cigar[i][0]==8:
+            elif operation==8:
                 # Also write the mutation event in the string/fingerprint +ref_seq[counter]+'>'
-                for j in range(cigar[i][1]):
+                for j in range(length):
                     alt_rec = str(counter+1)
                     alt_base = seq[counter_q]
                     if str(alt_base)!='N':
@@ -152,7 +153,7 @@ class SAMtoFP:
         mutantsstrbase = ''
         if mutants_base!=[]:
             mutantsstrbase = "-".join(mutants_base)
-        
+
         return mutantsstrbase, mutants_pos_list, lref, mutants_pairs_list
 
 
@@ -161,7 +162,7 @@ class SAMtoFP:
         Write sequence fingerprints from CIGAR format in BAM file
         :return sequences_list_base: fingerprints per bin per sequence as one string
         :return sequence_pos_list: fingerprints per bin per sequence as list of strings
-        :return sequence_pair_list: fingerprints per bin per sequence as pairs of 
+        :return sequence_pair_list: fingerprints per bin per sequence as pairs of
             sequence positions and mutant bases
         :return lref: length of reference sequence
         """
@@ -171,7 +172,7 @@ class SAMtoFP:
         sequence_pos_list = []
         # Write positions with mutant base
         sequence_pair_list = []
-       
+
         file = pysam.AlignmentFile(self.filename)
 
         for read in file.fetch(self.ref_name):
@@ -181,12 +182,12 @@ class SAMtoFP:
             start = start_[0]
             # Trim with cigar string
             cigar = read.cigartuples
-            
+
             mutants_string, mutants_pos_list, lref, mutants_pairs_list = self._cigarToFP(seq, cigar, start, name)
 
             sequences_list_base.append((name,mutants_string))
             sequence_pos_list.append((name,mutants_pos_list))
             sequence_pair_list.append(mutants_pairs_list)
-            
+
 
         return sequences_list_base, sequence_pos_list, lref, sequence_pair_list
