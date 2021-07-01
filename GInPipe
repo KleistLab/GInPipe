@@ -34,16 +34,17 @@ rule strip_whitespaces:
 	log:
 		expand("logs/ws_{sample}.log", sample=basefilename)
 	shell:
-		"reformat.sh in={input} out={output} underscore ignorejunk overwrite=true 2> {log}"
-
+		"(reformat.sh in={input} out={output} underscore ignorejunk overwrite=true) 2> {log}"
 
 rule samtools_faidx:
 	input:
 		expand("{reference}", reference=config["consensus"])
 	output:
 		expand("{reference}.fai", reference=config["consensus"])
+	log:
+		expand("logs/faidx_{sample}.log",sample=basefilename)
 	shell:
-		"samtools faidx {input}"
+		"(samtools faidx {input}) 2> {log}"
 
 rule replace_dashes:
 	input:
@@ -55,42 +56,61 @@ rule replace_dashes:
 	log:
 		"logs/dashes_{sample}.log"
 	shell:
-		"seqkit replace -s -p '-' -r 'N' {input} -o {output} 2> {log}"
+		"(seqkit replace -s -p '-' -r 'N' {input} -o {output}) 2> {log}"
 
 rule samtools_dict:
 	input:
 		expand("{reference}", reference=config["consensus"])
 	output:
-		expand("{reference}.dict", reference=config["consensus"][:-5])
+		expand("{reference}.dict", reference=config["consensus"][:-6])
+	conda:
+		"env/env.yml"
+	log:
+		expand("logs/samtools_dict_{reference}.log",reference=config["consensus"])
 	shell:
-		"samtools dict {input} -o {output}"
+		"(samtools dict {input} -o {output}) 2> {log}"
 
 rule minimap_index_ref:
 	input:
 		expand("{reference}", reference=config["consensus"])
 	output:
-		expand("{reference}.mmi", reference=config["consensus"][:-5])
+		expand("{reference}.mmi", reference=config["consensus"][:-6])
 	conda:
 		"env/env.yml"
+	log:
+		expand("logs/minimap_index_{reference}.log",reference=config["consensus"])
 	shell:
-		"minimap2 -d {output} {input}"
+		"(minimap2 -d {output} {input}) 2> {log}"
 
 rule minimap:
 	input:
-		ref = expand("{reference}.mmi", reference=config["consensus"][:-5]),
+		ref = expand("{reference}.mmi", reference=config["consensus"][:-6]),
 		s = "results/raw/{sample}_fixed12.fasta"
 	output:
 		"results/bam/{sample}.bam"
 	conda:
 		"env/env.yml"
 	log:
-		"logs/map_{sample}.log"
+		"logs/map_{sample}.log",
 	shell:
-		"minimap2 -a --eqx {input.ref} {input.s} | samtools view -Sb -F 0x900 > {output} 2> {log}"
+		"(minimap2 -a --eqx {input.ref} {input.s} | samtools view -Sb -F 0x900 > {output}) 2> {log}"
+
+rule flagstats:
+	input:
+		"results/bam/{sample}.bam"
+	output:
+		"results/bam/{sample}_flagstat.txt"
+	conda:
+		"env/env.yml"
+	log:
+		"logs/flagstat_{sample}.log"
+	shell:
+		"samtools flagstat {input} > {output} 2> {log}"
 
 rule sort_bam:
 	input:
-		"results/bam/{sample}.bam"
+		bam = "results/bam/{sample}.bam",
+		stat = "results/bam/{sample}_flagstat.txt"
 	output:
 		"results/bam/{sample}-sorted.bam"
 	log:
@@ -98,7 +118,7 @@ rule sort_bam:
 	conda:
 		"env/env.yml"
 	shell:
-		"samtools sort {input} > {output} 2> {log}"
+		"(samtools sort {input.bam} > {output}) 2> {log}"
 
 rule index_bam:
 	input:
@@ -110,7 +130,7 @@ rule index_bam:
 	log:
 		"logs/index_{sample}.log"
 	shell:
-		"samtools index {input} 2> {log}"
+		"(samtools index {input}) 2> {log}"
 
 rule samtools_idxstats:
 	input:
@@ -122,7 +142,7 @@ rule samtools_idxstats:
 	log:
 		"logs/idxstats_{sample}.log"
 	shell:
-		"samtools idxstats {input} > {output}"
+		"(samtools idxstats {input} > {output}) 2> {log}"
 
 rule run_binning:
 	input:
