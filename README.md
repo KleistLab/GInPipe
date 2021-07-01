@@ -69,6 +69,8 @@ and download snakemake with
 mamba install -c conda-forge -c bioconda snakemake
 ```
 
+Detailed Snakemake installation instruction using mamba can be found here: https://snakemake.readthedocs.io/en/stable/getting_started/installation.html
+
 #### Install R
 
 To run R routines, R including Rscript needs to be installed for the workflow. If it is not yet, you can install it together with the needed packages in your activated environment with conda or mamba 
