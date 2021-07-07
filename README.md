@@ -79,6 +79,27 @@ To run R routines, R including Rscript needs to be installed for the workflow. I
 mamba install -c conda-forge -c bioconda r-base r-ggplot2 r-r0 r-mass r-scales
 ```
 
+#### Install *ginpipepy* package
+
+Activate the conda environment created in the above step with 
+
+```
+conda activate GInPipe
+```
+
+Go to the package directory *baseginpipepy* within the pipeline directory:
+
+```
+cd baseginpipepy
+```
+
+Install the *ginpipepy* package needed to perform binning and to apply metrics to individual bins using **wheel**:
+
+```
+pip install wheel
+pip install .
+```
+
 ### Dependencies
 
 This workflow uses the following dependencies: 
@@ -209,7 +230,7 @@ Other options for specifying this parameter also work. For examples see https://
 
 ### Execution
 
-To run the pipeline activate the conda environment with 
+To run the pipeline activate (if not activated yet) the conda environment with 
 
 ```
 conda activate GInPipe
