@@ -93,7 +93,7 @@ Go to the package directory *baseginpipepy* within the pipeline directory:
 cd baseginpipepy
 ```
 
-Install the *ginpipepy* package needed to perform binning and to apply metrics to individual bins using **wheel**:
+Install the *ginpipepy* package needed to perform binning and to apply metrics to individual bins using **wheel** and **pip**:
 
 ```
 pip install wheel
