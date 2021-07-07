@@ -4,12 +4,10 @@ VERSION = '0.0.1'
 DESCRIPTION = 'GInPipe'
 LONG_DESCRIPTION = 'GInPipe - set of tools used by the pipeline'
 
-# Setting up
 setuptools.setup(
-       # the name must match the folder name 'verysimplemodule'
         name="ginpipepy",
         version=VERSION,
-        author="MT,YD,MS",
+        author="Yannick Duport, Maureen Smith, Maria Trofimova",
         author_email="<>",
         description=DESCRIPTION,
         long_description=LONG_DESCRIPTION,
