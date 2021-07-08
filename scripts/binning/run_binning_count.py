@@ -8,7 +8,7 @@ Created on Wed Mar 25 16:24:55 2020
 
 
 from pathlib import Path
-from sam_to_bins_modular import SAM
+from ginpipepy.sam_to_bins_modular import SAM
 import math
 import pandas as pd
 import os
@@ -37,7 +37,7 @@ if not num_per_bin:
     print("      * 5%%, or %i sequences" % int(num_per_bin[1]))
     print("      * 7%%, or %i sequences" % int(num_per_bin[2]))
     print('-'*80)
-    
+
 days_per_bin = snakemake.params.eq_days
 param1 = num_per_bin[0]
 param2 = days_per_bin[0]

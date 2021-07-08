@@ -10,13 +10,12 @@ import os
 from pathlib import Path
 import numpy as np
 import csv
-import matplotlib.pyplot as plt
 import pandas as pd
 import datetime
 
-from bam_to_fingerprints import SAMtoFP
-from modular_theta_from_dict import analyzeTrajectory
-from parameter_est import parameterEstimation
+from ginpipepy.bam_to_fingerprints import SAMtoFP
+from ginpipepy.modular_theta_from_dict import analyzeTrajectory
+from ginpipepy.parameter_est import parameterEstimation
 
 
 import random
@@ -95,18 +94,6 @@ for folder in binnings:
     filt = parameterEstimation(seq_list_base_complete,seq_list_pairs_complete,reference,freqCutoff)
     mut_proportion, filtered_seqset = filt.run()
     print("      Done.\n")
-
-    # filtered_seqset = []
-    # for b in filt_seqset:
-    #     if len(b)<200:
-    #         filtered_seqset.append(b)
-    #     else:
-    #         subs = random.sample(b, 200)
-    #         filtered_seqset.append(subs)
-
-
-    #for b in filtered_seqset:
-
 
     # Time span calculation
     # 1. Get the names of reads from headers and dates
