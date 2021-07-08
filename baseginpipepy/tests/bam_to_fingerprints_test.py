@@ -2,7 +2,7 @@ import unittest
 from ginpipepy.bam_to_fingerprints import SAMtoFP
 
 """
-Created on Tue Jul 9 2021
+Created on Tue Jul 6 2021
 
 @authors: Maria Trofimova
 """
