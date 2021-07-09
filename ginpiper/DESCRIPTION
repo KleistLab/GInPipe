@@ -1,0 +1,11 @@
+Package: ginpiper
+Type: Package
+Title: Incidence estimation and Re estimation for GInPipe
+Version: 0.1.0
+Author: Maureen Smith
+Maintainer: Maureen Smith
+Description: Smooth incidence curve estimation for epidemic outbreak using scales; Estimation of effective reproduction number using R0; Plotting estimates using ggplot2
+License: GPL-3.0
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1.9001

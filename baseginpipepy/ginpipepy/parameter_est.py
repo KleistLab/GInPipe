@@ -17,6 +17,10 @@ class parameterEstimation:
         self.reffile = reffile
 
     def _getAltPosCounts(self):
+        """
+        Get number of mutant bases in reference by sequence fingerprints
+        :return positions: dictionary (position,number_of_mutants) 
+        """
        # Aggregate all mutant positions in a dictionary
        positions = dict()
 
