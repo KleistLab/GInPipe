@@ -21,7 +21,7 @@ parser=argparse.ArgumentParser(
     description='''Merge date from metadata table with FASTA headers in GISAID format. ''')
 parser.add_argument('--i', type=str, default=None, help='Input FASTA file')
 parser.add_argument('--m', type=str, default=None, help='Input meta file')
-parser.add_argument('--mc', type=str, default=None, help='Column name by which metadata will be merged with FASTA headers')
+parser.add_argument('--mc', type=str, default=None, help='Column name by which metadata will be merged with FASTA headers - column containing full headers from the FASTA file')
 parser.add_argument('--dc', type=str, default=None, help='Column name containing date that will be added to FASTA headers')
 parser.add_argument('--o', type=str, default=None, help='Output FASTA file')
 args=parser.parse_args()
