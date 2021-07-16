@@ -230,7 +230,7 @@ Other options for specifying this parameter also work. For examples see https://
 
 #### 7 Masking using a Variant Calling File
 
-A VCF containing sites that need to be masked can also be provided vie config:
+A VCF containing sites that need to be masked can also be provided via config:
 
   ```
   masking: "path/to/vcf"
