@@ -238,6 +238,12 @@ A VCF containing sites that need to be masked can also be provided via config:
 
 The pipeline will check for flag "mask" in the FILTER column to apply masking to a particular site.
 
+If no masking file is provided, leave the field empty:
+
+  ```
+  masking: ""
+  ```
+
 ### Execution
 
 To run the pipeline activate (if not activated yet) the conda environment with 
