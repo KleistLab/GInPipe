@@ -228,6 +228,16 @@ If no prediction is wanted, specify it in the configuration file like this:
 
 Other options for specifying this parameter also work. For examples see https://yaml.org/type/bool.html
 
+#### 7 Masking using a Variant Calling File
+
+A VCF containing sites that need to be masked can also be provided vie config:
+
+  ```
+  masking: "path/to/vcf"
+  ```
+
+The pipeline will check for flag "mask" in the FILTER column to apply masking to a particular site.
+
 ### Execution
 
 To run the pipeline activate (if not activated yet) the conda environment with 
