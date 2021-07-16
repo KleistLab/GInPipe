@@ -12,7 +12,7 @@ setuptools.setup(
         description=DESCRIPTION,
         long_description=LONG_DESCRIPTION,
         packages=setuptools.find_packages(),
-        install_requires=['pysam','numpy<1.20','Bio','scipy','pandas'],
+        install_requires=['pysam','numpy<1.20','Bio','scipy','pandas','pyvcf'],
         keywords=['python'],
         classifiers= [
             "Programming Language :: Python :: 3",

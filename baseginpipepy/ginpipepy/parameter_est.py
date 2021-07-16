@@ -21,23 +21,23 @@ class parameterEstimation:
         Get number of mutant bases in reference by sequence fingerprints
         :return positions: dictionary (position,number_of_mutants) 
         """
-       # Aggregate all mutant positions in a dictionary
-       positions = dict()
+        # Aggregate all mutant positions in a dictionary
+        positions = dict()
 
-       for t, seqSet in enumerate(self.seqSets):
-           if len(seqSet)!=0:
-               for i, seq in enumerate(seqSet):
-                   if seq[1]!='':
-                       split_fp = seq[1].split("-")
-                       for pos in split_fp:
-                           spl = pos.split(">")
-                           pos = int(spl[0])
-                           if pos in positions:
-                               positions[pos] += 1
-                           else:
-                               positions[pos] = 1
+        for t, seqSet in enumerate(self.seqSets):
+            if len(seqSet)!=0:
+                for i, seq in enumerate(seqSet):
+                    if seq[1]!='':
+                        split_fp = seq[1].split("-")
+                        for pos in split_fp:
+                            spl = pos.split(">")
+                            pos = int(spl[0])
+                            if pos in positions:
+                                positions[pos] += 1
+                            else:
+                                positions[pos] = 1
 
-       return positions
+        return positions
 
 
     def _countMutants(self,seqSets):

@@ -25,3 +25,5 @@ freq_cutoff: 2
 group: "country"
 # 11. Calculate R0! y/n
 R0: y
+# 12. Use a masking file (VCF)
+masking: "path/to/vcf"

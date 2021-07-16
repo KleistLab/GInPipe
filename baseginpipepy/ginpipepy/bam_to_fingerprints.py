@@ -95,7 +95,6 @@ class SAMtoFP:
         mutants_base = []
         # Mutants count
         mutants_pos = 0
-        mutants_pos_list = []
         mutants_pairs_list = []
 
         # Ambiguous bases list
@@ -139,12 +138,10 @@ class SAMtoFP:
                                 pass
                             else:
                                 mutants_base.append(alt_rec+'>'+bcall)
-                                mutants_pos_list.append(counter+1)
                                 mutants_pairs_list.append((counter+1,bcall))
                                 mutants_pos += 1
                         else:
                             mutants_base.append(alt_rec+'>'+str(alt_base))
-                            mutants_pos_list.append(counter+1)
                             mutants_pairs_list.append((counter+1,str(alt_base)))
                             mutants_pos += 1
                     counter += 1
@@ -154,7 +151,7 @@ class SAMtoFP:
         if mutants_base!=[]:
             mutantsstrbase = "-".join(mutants_base)
 
-        return mutantsstrbase, mutants_pos_list, lref, mutants_pairs_list
+        return mutantsstrbase, lref, mutants_pairs_list
 
 
     def writeFP(self):
@@ -166,11 +163,9 @@ class SAMtoFP:
             sequence positions and mutant bases
         :return lref: length of reference sequence
         """
-        # Write pairs
+        # Write positions with mutant base as string
         sequences_list_base = []
-        # Write pure positions
-        sequence_pos_list = []
-        # Write positions with mutant base
+        # Write positions with mutant base as pair
         sequence_pair_list = []
 
         file = pysam.AlignmentFile(self.filename)
@@ -183,11 +178,10 @@ class SAMtoFP:
             # Trim with cigar string
             cigar = read.cigartuples
 
-            mutants_string, mutants_pos_list, lref, mutants_pairs_list = self._cigarToFP(seq, cigar, start, name)
+            mutants_string, lref, mutants_pairs_list = self._cigarToFP(seq, cigar, start, name)
 
             sequences_list_base.append((name,mutants_string))
-            sequence_pos_list.append((name,mutants_pos_list))
             sequence_pair_list.append(mutants_pairs_list)
 
 
-        return sequences_list_base, sequence_pos_list, lref, sequence_pair_list
+        return sequences_list_base, lref, sequence_pair_list
