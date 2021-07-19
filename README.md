@@ -29,7 +29,7 @@ Some tools have to be installed to run the analysis. We recommend following the 
 
 #### Install Conda/Miniconda
 
-Conda will manage the dependencies of our pipeline. Instructions can be found here: https://docs.conda.io/projects/conda/en/latest/user-guide/install
+Conda will manage the dependencies of our pipeline. Instructions can be found here: https://docs.conda.io/projects/conda/en/latest/user-guide/install.
 
 
 #### Create the working environment
@@ -69,7 +69,7 @@ and download snakemake with
 mamba install -c conda-forge -c bioconda snakemake
 ```
 
-Detailed Snakemake installation instruction using mamba can be found here: https://snakemake.readthedocs.io/en/stable/getting_started/installation.html
+Detailed Snakemake installation instruction using mamba can be found here: https://snakemake.readthedocs.io/en/stable/getting_started/installation.html.
 
 #### Install R
 
@@ -79,26 +79,6 @@ To run R routines, R including Rscript needs to be installed for the workflow. I
 mamba install -c conda-forge -c bioconda r-base r-ggplot2 r-r0 r-mass r-scales
 ```
 
-#### Install *ginpipepy* package
-
-Activate the conda environment created in the above step with 
-
-```
-conda activate GInPipe
-```
-
-Go to the package directory *baseginpipepy* within the pipeline directory:
-
-```
-cd baseginpipepy
-```
-
-Install the *ginpipepy* package needed to perform binning and to apply metrics to individual bins using **wheel** and **pip**:
-
-```
-pip install wheel
-pip install .
-```
 
 ### Dependencies
 
@@ -119,9 +99,10 @@ This workflow uses the following dependencies:
   - MASS
   - R0
   - scales
+  - ginpipepy
 ```
 
-They are installed automatically upon execution using the environment file [`env.yml`](./env/env.yml) and R scripts [`computeInterpolation.R`](./scripts/RScripts/splines/computeInterpolation.R) and [`computeR0.R`](./scripts/RScripts/splines/computeR0.R)
+They are installed automatically upon execution using the environment file [`env.yml`](./env/env.yml) and R scripts [`computeInterpolation.R`](./scripts/RScripts/splines/computeInterpolation.R) and [`computeR0.R`](./scripts/RScripts/splines/computeR0.R). *ginpipepy* is a package that contains functions for binning, population size calculations, and masking. It is installed within the environment using *pip* from https://github.com/trofimovamw/baseginpipe.
 
 ## Input
 As an input, the pipeline requires a file containing sequences and a file with a reference consensus sequence.
