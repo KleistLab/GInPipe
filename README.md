@@ -125,7 +125,7 @@ These variables are stored in [`config.yaml`](./config.yaml) and used as wildcar
 
 The specified paths in the config file should either be absolute, or relative to the work environment specified with -d in the snakemake call (see below in [Execution](#execution)).
 
-**Note:** paths to files should be either:
+**Note:** paths to files in [`config.yaml`](./config.yaml) should be either:
 - absolute, 
 - or relative to the main pipeline Snakefile, 
 - or relative to the working directory (see below in Execution section).
