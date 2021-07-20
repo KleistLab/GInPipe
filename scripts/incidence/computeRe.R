@@ -11,9 +11,14 @@ dynamic_require <- function(package){
 }
 
 #"ggformula"
-for(p in c("ggplot2","R0")) {
+for(p in c("ggplot2","R0","devtools")) {
   dynamic_require(p)
 }
+
+# Install ginpiper
+devtools::install_github("https://github.com/trofimovamw/ginpiper")
+library(ginpiper)
+
 
 #Read in arguments
 args = commandArgs(trailingOnly = TRUE)
@@ -37,12 +42,12 @@ if(file.exists(inputFile)) {
   # Output file
   fileName<-basename(outputFile)
   outputDir<- dirname(outputFile)
-  
+
   if(!dir.exists(outputDir))
     dir.create(outputDir, showWarnings = FALSE, recursive = TRUE)
   outputDir <- normalizePath(outputDir)
   outputFile<-paste0(normalizePath(outputDir),"/",fileName)
-  
+
   ### All absolute paths are set, change working directory
   # set working directory to call other R Scripts
   getScriptPath <- function(){
@@ -54,11 +59,11 @@ if(file.exists(inputFile)) {
     return(script.dir)
   }
   this.dir <- getScriptPath()
-  
+
   setwd(this.dir)
   # load other r routines
-  source("plotRoutines.R")
-  
+  #source("plotRoutines.R")
+
   cat("--- Compute Re ---\n\n")
   # R0 package
   # Wallinga and Teunis (2004)
@@ -66,15 +71,17 @@ if(file.exists(inputFile)) {
   GT <- generation.time(type = "gamma",
                         val = c(5,1), truncate = NULL, step = 1, first.half = TRUE,
                         p0 = TRUE)
+  print(GT)
   # Pseudocount
   input.table$smoothMedian <- input.table$smoothMedian+1
   # Compute R0
-  td <- est.R0.TD(as.numeric(unlist(round(input.table$smoothMedian))),GT=GT,t=input.table$date)
+  print(round(input.table$smoothMedian))
+  td <- est.R0.TD(as.numeric(unlist(round(input.table$smoothMedian))),GT=GT,t=input.table$date,nsim=8000)
   re.table <- data.frame(t=input.table[td$begin.nb:td$end.nb,]$t,value=as.vector(td$R),lower=as.vector(td$conf.int$lower),upper=as.vector(td$conf.int$upper))
   # plot
   re.table$date <- input.table[td$begin.nb:td$end.nb,]$date
   outputFileWT <- paste0(normalizePath(outputDir),"/",substr(fileName,1,(nchar(fileName)-4)),".png")
-  
+
   cat("--- Write output table and plot ---\n\n")
   plot_Re(re.table, outputFile=outputFileWT)
   # Write table

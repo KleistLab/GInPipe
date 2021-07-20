@@ -11,9 +11,14 @@ dynamic_require <- function(package){
 }
 
 #"ggformula"
-for(p in c("ggplot2", "scales")) {
+for(p in c("ggplot2", "scales","devtools")) {
   dynamic_require(p)
 }
+
+
+# Install ginpiper
+devtools::install_github("https://github.com/trofimovamw/ginpiper",force=TRUE)
+library(ginpiper)
 
 #Read in arguments
 args = commandArgs(trailingOnly = TRUE)
@@ -56,11 +61,11 @@ if(file.exists(inputFile)) {
     table_active_col <- args[7]
     table_date_format <- args[8]
   }
-  
-  
+
+
   # A pre-set date format for metric output
   input_date_format = "%Y-%m-%d"
-  
+
   cat("--- Read table with point estimates ---\n\n")
   # Read input
   point.table = read.table(inputFile, header=T, sep = "\t")
@@ -71,12 +76,12 @@ if(file.exists(inputFile)) {
     dir.create(outputDir, showWarnings = FALSE, recursive = TRUE)
   outputDir <- normalizePath(outputDir)
   outputFile<-paste0(outputDir,"/",fileName)
-  
-  
+
+
   # Read reporte cases, if existing
   cases.table.full = data.frame(matrix(ncol=0,nrow=0))
   cases.table = data.frame(matrix(ncol=0,nrow=0))
-  
+
   # Some fake date
   minDate1 <- integer(0)
   class(minDate1) <- "Date"
@@ -99,7 +104,7 @@ if(file.exists(inputFile)) {
     cases.table.full$date <- as.Date(cases.table.full$date, table_date_format)
     # Make cases table with t, new_cases, dates
     cases.table <- data.frame(new_cases=cases.table.full$new_cases,date=cases.table.full$date)
-    #should be unnecessary to aks for, as it is set above, just in case leave it.
+    #should be unnecessary to ask for, as it is set above, just in case leave it.
     if (!"new_cases" %in% colnames(cases.table)) {
       cat("\n Reported cases table has no column named 'new_cases'. Rename existing columns
                   or provide a new table\n")
@@ -110,8 +115,8 @@ if(file.exists(inputFile)) {
     cases.table$new_cases_avrg <- filter(cases.table$new_cases, rep(1/7,7))
     cases.table <- na.omit(cases.table)
     cases.table$country <- rep(country,nrow(cases.table))
-  } 
-  
+  }
+
   ### All absolute paths are set, change working directory
   # set working directory to call other R Scripts
   getScriptPath <- function(){
@@ -123,7 +128,7 @@ if(file.exists(inputFile)) {
     return(script.dir)
   }
   this.dir <- getScriptPath()
-  
+
   #getSrcDirectory(function(x) {x})
   #if (rstudioapi::isAvailable()) {
   #  this.dir <- dirname(rstudioapi::getActiveDocumentContext()$path)
@@ -133,33 +138,34 @@ if(file.exists(inputFile)) {
   setwd(this.dir)
 
   # load other r routines
-  source("dateFormatRoutines.R")
-  source("smoothingRoutines.R")
-  source("plotRoutines.R")
-  
+  #source("dateFormatRoutines.R")
+  #source("smoothingRoutines.R")
+  #source("plotRoutines.R")
+
   # minDate to use in all plotted tables
   minDate2 = min(as.Date(point.table$meanBinDate,input_date_format))
   minDates <- c(minDate1,minDate2)
   minDate = min(minDates)
-  
+
   cat("--- Smooth point esimates ---\n\n")
+
   # infer days=t since the global minimal day
-  point.table$t <- as.days_since_global_d0(point.table$meanBinDate,minDate)
+  point.table$t <- asDays_since_global_d0(point.table$meanBinDate,minDate)
   if(!is.na(table_name) & nrow(cases.table)> 0) {
-    cases.table$t <- as.days_since_global_d0(cases.table$date,minDate)
+    cases.table$t <- asDays_since_global_d0(cases.table$date,minDate)
   }
-  
+
   # Replace negative number of new cases with 0 - happens if calculated from cumulative confirmed
   # cases count
   smooth.table <- smooth_point_estimates(point.table, seq(min(point.table$t), max(point.table$t)), point.table$sampleSize)
   # Plot interpolated curve with 95% CI starting on global minDate
-  smooth.table["date"] <- days.as.Date(smooth.table$t, minDate)
+  smooth.table["date"] <- daysAsDate(smooth.table$t, minDate)
   #smooth.table <- smooth.table[!is.na(smooth.table$median) ,]
   smooth.table[is.na(smooth.table)] <- 0
   # Remove rows with zeros in smooth median
   smooth.table <- smooth.table[smooth.table$smoothMedian != 0,]
   # Add date column
-  smooth.table$date <- days.as.Date(smooth.table$t, minDate)
+  smooth.table$date <- daysAsDate(smooth.table$t, minDate)
   # Write tables and plot
   write.csv(smooth.table,paste0(outputDir,"/",fileName), row.names = F, col.names = T)
   outputFileInter<-paste0(outputDir,"/",substr(fileName,1,(nchar(fileName)-4)),".pdf")
