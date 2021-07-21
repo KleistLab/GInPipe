@@ -90,12 +90,12 @@ This workflow uses the following dependencies:
   - biopython
   - pandas
   - scipy
-  - matplotlib
   - minimap2
   - ggplot2
   - MASS
   - R0
   - scales
+  - pyvcf
 ```
 
 They are installed automatically upon execution using the environment file [`env.yml`](./env/env.yml) and R scripts [`computeInterpolation.R`](./scripts/RScripts/splines/computeInterpolation.R) and [`computeR0.R`](./scripts/RScripts/splines/computeR0.R)
