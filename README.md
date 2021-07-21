@@ -76,7 +76,7 @@ Detailed Snakemake installation instruction using mamba can be found here: https
 To run R routines, R including Rscript needs to be installed for the workflow. If it is not yet, you can install it together with the needed packages in your activated environment with conda or mamba 
 
 ```
-mamba install -c conda-forge -c bioconda r-base r-ggplot2 r-r0 r-mass r-scales
+mamba install -c conda-forge -c bioconda r-base r-ggplot2 r-r0 r-scales
 ```
 
 
@@ -96,7 +96,6 @@ This workflow uses the following dependencies:
   - matplotlib
   - minimap2
   - ggplot2
-  - MASS
   - R0
   - scales
   - pip
