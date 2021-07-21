@@ -187,11 +187,12 @@ rule incidence_estimates:
 		min_bin_size = config["min_bin_size"],
 		min_days_span = config["min_days_span"],
 		max_days_span = config["max_days_span"],
-		group = config["group"]
-	log:
-		"logs/incidence_est.log"
+		group = config["group"],
+		vcf = config["masking"]
 	conda:
 		"env/env.yml"
+	log:
+		"logs/incidence_est.log"
 	script:
 		"scripts/metrics/run_fp.py"
 

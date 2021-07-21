@@ -80,7 +80,7 @@ for folder in binnings:
             headers.append(file)
     headers.sort()
 
-    # Initialize result 
+    # Initialize result
     # Positions with mutant base as string
     seq_list_base_complete = []
     # Positions with mutant base as pair
@@ -96,7 +96,7 @@ for folder in binnings:
         seq_list_pairs_complete.append(mutants_pairs_list)
     print(" Done.")
     print(" Filtering variants with sequence number cutoff: <=%d" % freqCutoff)
-    filt = parameterEstimation(seq_list_base_complete,seq_list_pairs_complete,reference,freqCutoff)
+    filt = parameterEstimation(seq_list_base_complete,reference,freqCutoff)
     mut_proportion, filtered_seqset = filt.run()
     print(" Done.")
 
@@ -165,8 +165,6 @@ for folder in binnings:
                                     origins[i],
                                     num_mut[i]))
 
-
-
 print('-'*80)
 print(" Making the final results table...")
 # Make merged dataset sorted by date
@@ -187,7 +185,7 @@ with open(table_path, 'w+', newline='') as csvfile:
         if bin_merging_data_[i][2]<=1/int(min_bin_size) and bin_merging_data_[i][6]>=min_days_span and bin_merging_data_[i][6]<=max_days_span:
             writer.writerow([times[i],
                             bin_merging_data_[i][1],
-                            bin_merging_data_[i][2], 
+                            bin_merging_data_[i][2],
                             bin_merging_data_[i][0],
                             bin_merging_data_[i][4],
                             bin_merging_data_[i][6],
@@ -196,14 +194,3 @@ with open(table_path, 'w+', newline='') as csvfile:
                             bin_merging_data_[i][9]])
 
 print(" Done.")
-
-
-
-
-
-
-
-
-
-
-

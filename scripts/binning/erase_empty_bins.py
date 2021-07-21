@@ -32,7 +32,7 @@ for folder in bins_filter:
     headers.sort()
     ranges_filter.sort()
     for i,hfile in enumerate(headers):
-        table = pd.read_table("%s/%s/%s" % (bins_dir, folder, hfile),delimiter='\t',header=0) 
+        table = pd.read_table("%s/%s/%s" % (bins_dir, folder, hfile),delimiter='\t',header=0)
         if table.empty:
             bam_name = "%s/%s/%s" % (bins_dir, folder, files_filter[i])
             header_name = "%s/%s/%s" % (bins_dir, folder, headers[i])
@@ -40,9 +40,6 @@ for folder in bins_filter:
             os.remove(bam_name)
             os.remove(header_name)
             os.remove(range_name)
-            #subprocess.check_call("rm %s" % bam_name, shell=True)
-            #subprocess.check_call("rm %s" % header_name, shell=True)
-            #subprocess.check_call("rm %s" % range_name, shell=True)
         else:
             bam_name = "%s/%s/%s" % (bins_dir, folder, files_filter[i])
             subprocess.check_call("samtools index %s" % bam_name, shell=True)
