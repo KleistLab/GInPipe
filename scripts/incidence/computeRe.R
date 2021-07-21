@@ -71,11 +71,9 @@ if(file.exists(inputFile)) {
   GT <- generation.time(type = "gamma",
                         val = c(5,1), truncate = NULL, step = 1, first.half = TRUE,
                         p0 = TRUE)
-  print(GT)
   # Pseudocount
   input.table$smoothMedian <- input.table$smoothMedian+1
   # Compute R0
-  print(round(input.table$smoothMedian))
   td <- est.R0.TD(as.numeric(unlist(round(input.table$smoothMedian))),GT=GT,t=input.table$date,nsim=8000)
   re.table <- data.frame(t=input.table[td$begin.nb:td$end.nb,]$t,value=as.vector(td$R),lower=as.vector(td$conf.int$lower),upper=as.vector(td$conf.int$upper))
   # plot
