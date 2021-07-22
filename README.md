@@ -93,7 +93,7 @@ This workflow uses the following dependencies:
   - biopython
   - pandas
   - scipy
-  - matplotlib
+  - pyvcf
   - minimap2
   - ggplot2
   - R0
@@ -104,7 +104,7 @@ This workflow uses the following dependencies:
   - ginpiper
 ```
 
-They are installed automatically upon execution using the environment file [`env.yml`](./env/env.yml) and R scripts [`computeInterpolation.R`](./scripts/RScripts/splines/computeInterpolation.R) and [`computeR0.R`](./scripts/RScripts/splines/computeR0.R). *ginpipepy* is a custom package that contains functions for binning, population size calculations, and masking. It is installed within the environment using *pip* from https://github.com/trofimovamw/baseginpipe. *ginpiper* is a package that contains functions for smoothing, plotting, and date transformations. It is another custom package used by the pipeline and is installed using *devtools* from https://github.com/trofimovamw/ginpiper. 
+They are installed automatically upon execution using the environment file [`env.yml`](./env/env.yml) and R scripts [`computeInterpolation.R`](./scripts/RScripts/splines/computeInterpolation.R) and [`computeR0.R`](./scripts/RScripts/splines/computeR0.R). *ginpipepy* is a custom package that contains functions for binning, population size calculations, and masking. It is installed within the environment using *pip* from https://github.com/KleistLab/ginpipepy. *ginpiper* is a package that contains functions for smoothing, plotting, and date transformations. It is another custom package used by the pipeline and is installed using *devtools* from https://github.com/KleistLab/ginpiper. 
 
 ## Input
 As an input, the pipeline requires a file containing sequences and a file with a reference consensus sequence.
