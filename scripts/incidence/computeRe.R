@@ -16,7 +16,7 @@ for(p in c("ggplot2","R0","devtools")) {
 }
 
 # Install ginpiper
-devtools::install_github("https://github.com/trofimovamw/ginpiper")
+devtools::install_github("https://github.com/KleistLab/ginpiper")
 library(ginpiper)
 
 
