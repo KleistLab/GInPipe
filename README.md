@@ -287,7 +287,7 @@ The result folder is created in the [`demo`](./demo) folder where you find the o
 
 ## Running the pipeline for SARS-CoV-2 on GISAID data
 
-To run the pipeline on real data, such as COVID sequences from GISAID, download the accordings sequence data as well as the reference sequence and adapt the paths in the config.yaml as explained in [Initialization](#initialization). 
+To run the pipeline on real data, such as COVID sequences from GISAID, download the according sequence data as well as the reference sequence and adapt the paths in the config.yaml as explained in [Initialization](#initialization). 
 
 ## Reference
 <a id="1">[1]</a> 
