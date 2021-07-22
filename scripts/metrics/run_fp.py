@@ -91,7 +91,7 @@ for folder in binnings:
     for filename in files:
         path = "%s/%s" % (binnings_dir, filename)
         sam_to_fp = SAMtoFP(path,reference,refname)
-        seq_lbase, lref, mutants_pairs_list = sam_to_fp.writeFP()
+        seq_lbase, lref, mutants_pairs_list = sam_to_fp.write_fp()
         seq_list_base_complete.append(seq_lbase)
         seq_list_pairs_complete.append(mutants_pairs_list)
     print(" Done.")
@@ -104,7 +104,7 @@ for folder in binnings:
     if masking_file:
         print(" Masking bases based on provided Variant Calling File...")
         mask = VCFreader(masking_file, reference, filtered_seqset)
-        filtered_seqset = mask.maskBasesInFP()
+        filtered_seqset = mask.mask_bases_in_fp()
         print(" Done.")
 
     # Get the time span and mean date of each bin
@@ -135,7 +135,7 @@ for folder in binnings:
     print(" Computing optimal metric parameters...")
     #Theta from origins - MLE
     analyze = analyzeTrajectory(filtered_seqset, mut_proportion, num_days_per_bin, '')
-    thetas, variance, variance_size, num_seqs, num_mut, origins = analyze.analyzeBinsMLE()
+    thetas, variance, variance_size, num_seqs, num_mut, origins = analyze.analyze_bins_mle()
     print(" Done.")
     print(" Writing binning table...")
 
