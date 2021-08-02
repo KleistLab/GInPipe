@@ -113,7 +113,7 @@ For the sequences it is important that they contain a sequencing-, or better, sa
 and must be part of the sequence-name of the FASTA header, which should look like this: **'>some_name|%YYYY-%mm-%dd'**.
 
 The header of the reference sequence can contain an arbitrary name, but importantly without white spaces:
-**'>some_reference_name'**.
+**'>some_reference_name'**. If there are whitespaces present in the reference name string, a substring before the first whitespace will be used.
 
 ## Running the pipeline
 
