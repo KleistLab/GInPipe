@@ -39,7 +39,10 @@ reference = str(snakemake.params.ref)
 with open(str(reference), "r") as file:
     header = file.readline()
 refname = header.strip(">")
-refname = refname.strip("\n")
+refname_full = refname.strip("\n")
+split_header = refname_full.split()
+#Minimap2 header
+refname = split_header[0]
 
 # Grouping variable - suffix for all files
 file_suffix = snakemake.params.group

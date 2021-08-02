@@ -47,8 +47,13 @@ with open(str(reffile_dir), "r") as file:
     header = file.readline()
 param3 = header.strip(">")
 param3header = param3.strip("\n")
-print('Reference sequence header: %s' % param3header)
-sam = SAM(SAM_PATH, bins_dir, meta_dir, param1, param2, param3header)
+#Split header on whitespaces -- if whitespaces present the forst string will be taken
+split_header = param3header.split()
+#Minimap2 header
+mm_header = split_header[0]
+print('Reference sequence header full: %s' % param3header)
+print('Reference sequence header used: %s' % mm_header)
+sam = SAM(SAM_PATH, bins_dir, meta_dir, param1, param2, mm_header)
 
 print('-' * 80)
 print("Bins of equal Size")
