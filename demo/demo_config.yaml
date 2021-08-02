@@ -15,4 +15,5 @@ reported_cases:
 - date
 - reported_cases
 - '%Y-%m-%d'
-R0: y
+R0: yes
+masking:
