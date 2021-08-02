@@ -112,6 +112,9 @@ As an input, the pipeline requires a file containing sequences and a file with a
 For the sequences it is important that they contain a sequencing-, or better, sampling-date. The date must have the format **%YYYY-%mm-%dd**
 and must be part of the sequence-name of the FASTA header, which should look like this: **'>some_name|%YYYY-%mm-%dd'**.
 
+The header of the reference sequence can contain an arbitrary name, but importantly without white spaces:
+**'>some_reference_name'**.
+
 ## Running the pipeline
 
 This is a small guide on how to set up and run the pipeline.
