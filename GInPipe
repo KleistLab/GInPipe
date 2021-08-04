@@ -11,11 +11,11 @@ report: "report/workflow.rst"
 if config["R0"]:
 	rule all:
 		input:
-			"results/r0/r0.csv"
+			"results/Re/Re_"+config["group"]+".csv"
 else:
 	rule all:
 		input:
-			"results/incidence/incidence.csv"
+			"results/incidence/incidence_"+config["group"]+".csv"
 
 def get_reported_cases_params():
     rep_cases = config["reported_cases"]
@@ -34,16 +34,17 @@ rule strip_whitespaces:
 	log:
 		expand("logs/ws_{sample}.log", sample=basefilename)
 	shell:
-		"reformat.sh in={input} out={output} underscore ignorejunk overwrite=true 2> {log}"
-
+		"(reformat.sh in={input} out={output} underscore ignorejunk overwrite=true) 2> {log}"
 
 rule samtools_faidx:
 	input:
 		expand("{reference}", reference=config["consensus"])
 	output:
 		expand("{reference}.fai", reference=config["consensus"])
+	log:
+		expand("logs/faidx_{sample}.log",sample=basefilename)
 	shell:
-		"samtools faidx {input}"
+		"(samtools faidx {input}) 2> {log}"
 
 rule replace_dashes:
 	input:
@@ -55,42 +56,61 @@ rule replace_dashes:
 	log:
 		"logs/dashes_{sample}.log"
 	shell:
-		"seqkit replace -s -p '-' -r 'N' {input} -o {output} 2> {log}"
+		"(seqkit replace -s -p '-' -r 'N' {input} -o {output}) 2> {log}"
 
 rule samtools_dict:
 	input:
 		expand("{reference}", reference=config["consensus"])
 	output:
-		expand("{reference}.dict", reference=config["consensus"][:-5])
+		expand("{reference}.dict", reference=config["consensus"][:-6])
+	conda:
+		"env/env.yml"
+	log:
+		expand("logs/samtools_dict_{reference}.log",reference=config["consensus"])
 	shell:
-		"samtools dict {input} -o {output}"
+		"(samtools dict {input} -o {output}) 2> {log}"
 
 rule minimap_index_ref:
 	input:
 		expand("{reference}", reference=config["consensus"])
 	output:
-		expand("{reference}.mmi", reference=config["consensus"][:-5])
+		expand("{reference}.mmi", reference=config["consensus"][:-6])
 	conda:
 		"env/env.yml"
+	log:
+		expand("logs/minimap_index_{reference}.log",reference=config["consensus"])
 	shell:
-		"minimap2 -d {output} {input}"
+		"(minimap2 -d {output} {input}) 2> {log}"
 
 rule minimap:
 	input:
-		ref = expand("{reference}.mmi", reference=config["consensus"][:-5]),
+		ref = expand("{reference}.mmi", reference=config["consensus"][:-6]),
 		s = "results/raw/{sample}_fixed12.fasta"
 	output:
 		"results/bam/{sample}.bam"
 	conda:
 		"env/env.yml"
 	log:
-		"logs/map_{sample}.log"
+		"logs/map_{sample}.log",
 	shell:
-		"minimap2 -a --eqx {input.ref} {input.s} | samtools view -Sb -F 0x900 > {output} 2> {log}"
+		"(minimap2 -a --eqx {input.ref} {input.s} | samtools view -Sb -F 0x900 > {output}) 2> {log}"
+
+rule flagstats:
+	input:
+		"results/bam/{sample}.bam"
+	output:
+		"results/bam/{sample}_flagstat.txt"
+	conda:
+		"env/env.yml"
+	log:
+		"logs/flagstat_{sample}.log"
+	shell:
+		"samtools flagstat {input} > {output} 2> {log}"
 
 rule sort_bam:
 	input:
-		"results/bam/{sample}.bam"
+		bam = "results/bam/{sample}.bam",
+		stat = "results/bam/{sample}_flagstat.txt"
 	output:
 		"results/bam/{sample}-sorted.bam"
 	log:
@@ -98,7 +118,7 @@ rule sort_bam:
 	conda:
 		"env/env.yml"
 	shell:
-		"samtools sort {input} > {output} 2> {log}"
+		"(samtools sort {input.bam} > {output}) 2> {log}"
 
 rule index_bam:
 	input:
@@ -110,7 +130,7 @@ rule index_bam:
 	log:
 		"logs/index_{sample}.log"
 	shell:
-		"samtools index {input} 2> {log}"
+		"(samtools index {input}) 2> {log}"
 
 rule samtools_idxstats:
 	input:
@@ -122,7 +142,7 @@ rule samtools_idxstats:
 	log:
 		"logs/idxstats_{sample}.log"
 	shell:
-		"samtools idxstats {input} > {output}"
+		"(samtools idxstats {input} > {output}) 2> {log}"
 
 rule run_binning:
 	input:
@@ -144,9 +164,21 @@ rule run_binning:
 	script:
 		"scripts/binning/run_binning_count.py"
 
-rule incidence_estimates:
+rule remove_empty_bins:
 	input:
 		"results/bins/list_of_binnings.tsv"
+	output:
+		"results/bins/list_of_binnings_filtered.tsv"
+	conda:
+		"env/env.yml"
+	log:
+		"logs/binning_filter.log"
+	script:
+		"scripts/binning/erase_empty_bins.py"
+
+rule incidence_estimates:
+	input:
+		"results/bins/list_of_binnings_filtered.tsv"
 	output:
 		"results/bins_incidence/table_merged_phi_estimates_var_from_size.tsv"
 	params:
@@ -155,11 +187,12 @@ rule incidence_estimates:
 		min_bin_size = config["min_bin_size"],
 		min_days_span = config["min_days_span"],
 		max_days_span = config["max_days_span"],
-		group = config["group"]
-	log:
-		"logs/incidence_est.log"
+		group = config["group"],
+		vcf = config["masking"]
 	conda:
 		"env/env.yml"
+	log:
+		"logs/incidence_est.log"
 	script:
 		"scripts/metrics/run_fp.py"
 
@@ -172,20 +205,20 @@ rule interpolation:
 	conda:
 		"env/env.yml"
 	output:
-		result = "results/incidence/incidence.csv",
+		result = "results/incidence/incidence_"+config["group"]+".csv",
 	shell:
-		"Rscript {workflow.basedir}/scripts/incidence/computeInterpolation.R {input.infile} \
+		"Rscript {workflow.basedir}/scripts/incidence/computeSmoothValues.R {input.infile} \
 			{params.group} {output.result} {params.rep_cases[0]} '{params.rep_cases[1]}' \
 			{params.rep_cases[2]} {params.rep_cases[3]} {params.rep_cases[4]}"
 
 if config["R0"]:
-	rule r0:
+	rule re:
 		input:
-			infile = "results/incidence/incidence.csv"
+			infile = "results/incidence/incidence_"+config["group"]+".csv"
 		output:
-			outfile = "results/r0/r0.csv"
+			outfile = "results/Re/Re_"+config["group"]+".csv"
 		conda:
 			"env/env.yml"
 		shell:
-			"Rscript {workflow.basedir}/scripts/incidence/computeR0.R {input.infile} \
+			"Rscript {workflow.basedir}/scripts/incidence/computeRe.R {input.infile} \
 			{output.outfile}"
