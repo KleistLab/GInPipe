@@ -29,7 +29,7 @@ Some tools have to be installed to run the analysis. We recommend following the 
 
 #### Install Conda/Miniconda
 
-Conda will manage the dependencies of our pipeline. Instructions can be found here: https://docs.conda.io/projects/conda/en/latest/user-guide/install
+Conda will manage the dependencies of our pipeline. Instructions can be found here: https://docs.conda.io/projects/conda/en/latest/user-guide/install.
 
 
 #### Create the working environment
@@ -54,32 +54,35 @@ conda activate GInPipe
 Snakemake is the workflow management system we use. Install it in your activated environment like this:
 
 ```
-conda install snakemake
+conda install -c conda-forge snakemake
 ```
 
-NOTE: In case conda is not able to find the packages for snakemake (which was the case for the Linux version), you can install mamba in your environment 
+NOTE: In case conda is not able to find the packages for snakemake (which was the case for the Linux version), you can install mamba in your environment
 
 ```
 conda install -c conda-forge mamba
 ```
 
-and download snakemake with 
+and download snakemake with
 
 ```
 mamba install -c conda-forge -c bioconda snakemake
 ```
 
+Detailed Snakemake installation instruction using mamba can be found here: https://snakemake.readthedocs.io/en/stable/getting_started/installation.html.
+
 #### Install R
 
-To run R routines, R including Rscript needs to be installed for the workflow. If it is not yet, you can install it together with the needed packages in your activated environment with conda or mamba 
+To run R routines, R including Rscript needs to be installed for the workflow. If it is not yet, you can install it together with the needed packages in your activated environment with conda or mamba
 
 ```
-mamba install -c conda-forge -c bioconda r-base r-ggplot2 r-r0 r-mass r-scales
+mamba install -c conda-forge -c bioconda r-base r-ggplot2 r-r0 r-scales
 ```
+
 
 ### Dependencies
 
-This workflow uses the following dependencies: 
+This workflow uses the following dependencies:
 
 ```
   - bbmap
@@ -90,23 +93,27 @@ This workflow uses the following dependencies:
   - biopython
   - pandas
   - scipy
+  - pyvcf
   - minimap2
   - ggplot2
-  - MASS
   - R0
   - scales
-  - pyvcf
+  - pip
+  - devtools
+  - ginpipepy
+  - ginpiper
 ```
 
-They are installed automatically upon execution using the environment file [`env.yml`](./env/env.yml) and R scripts [`computeInterpolation.R`](./scripts/RScripts/splines/computeInterpolation.R) and [`computeR0.R`](./scripts/RScripts/splines/computeR0.R)
+They are installed automatically upon execution using the environment file [`env.yml`](./env/env.yml) and R scripts [`computeInterpolation.R`](./scripts/RScripts/splines/computeInterpolation.R) and [`computeR0.R`](./scripts/RScripts/splines/computeR0.R). *ginpipepy* is a custom package that contains functions for binning, population size calculations, and masking. It is installed within the environment using *pip* from https://github.com/KleistLab/ginpipepy. *ginpiper* is a package that contains functions for smoothing, plotting, and date transformations. It is another custom package used by the pipeline and is installed using *devtools* from https://github.com/KleistLab/ginpiper.
 
 ## Input
 As an input, the pipeline requires a file containing sequences and a file with a reference consensus sequence.
 
-For the sequences it is important that they contain a sequencing-, or better, sample-date. The date must have the format **%YYYY-%mm-%dd**
-and can be either part of the sequence-name or provided in an additional file.
-- If the date is part of the sequence-name, then the name should look like this: **'some_name | %YYYY-%mm-%dd'**.   
-- If the date is provided in an additional file, add the date to corresponding FASTA headers.
+For the sequences it is important that they contain a sequencing-, or better, sampling-date. The date must have the format **%YYYY-%mm-%dd**
+and must be part of the sequence-name of the FASTA header, which should look like this: **'>some_name|%YYYY-%mm-%dd'**.
+
+The header of the reference sequence can contain an arbitrary name, but importantly without white spaces:
+**'>some_reference_name'**. If there are whitespaces present in the reference name string, a substring before the first whitespace will be used.
 
 ## Running the pipeline
 
@@ -119,6 +126,11 @@ As input the pipeline requires names of the sequence file, the reference genome,
 These variables are stored in [`config.yaml`](./config.yaml) and used as wildcards to create and link files with each other or as parameters for the binning. For more information about the YAML markup format refer to documentation: https://yaml.org
 
 The specified paths in the config file should either be absolute, or relative to the work environment specified with -d in the snakemake call (see below in [Execution](#execution)).
+
+**Note:** paths to files in [`config.yaml`](./config.yaml) should be either:
+- absolute,
+- or relative to the main pipeline Snakefile,
+- or relative to the working directory (see below in Execution section).
 
 #### 1 Sample sequences
 The pipeline requires a file containing sequences, with the date in the sequence-name in GISAID format (date in format "%Y-%m-%d" at the end of header after a vertical bar).
@@ -154,7 +166,7 @@ If no reported cases data is provided, leave the fields empty like this:
   ```
 
 #### 3 Reference sequence
-Add the file path of reference/consensus sequence into the variable **consensus** of [`config.yaml`](./config.yaml). 
+Add the file path of reference/consensus sequence into the variable **consensus** of [`config.yaml`](./config.yaml).
 
   ```
   consensus: "path/to/consensus/sequence.fasta"
@@ -186,7 +198,7 @@ If parameter **number_per_bin** is an empty list, a default mode with predefined
 
 Low-abundance point mutations are filtered out, to avoid the consideration of sequence errors.
 The cutoff for the amount of mutations at a certain sequence position in the whole dataset is set with:
-  
+
   ```
   freq_cutoff: 2
   ```
@@ -196,20 +208,37 @@ The cutoff for the amount of mutations at a certain sequence position in the who
 The workflow can calculate and plot the prediction of effective reproduction number. If this prediction is desired, specify it via a boolean variable in the configuration file, for example like this:
 
   ```
-  R0: y
+  R0: yes
   ```
 
 If no prediction is wanted, specify it in the configuration file like this:
 
   ```
-  R0: n
+  R0: no
   ```
 
-Other options for specifying this parameter also work. For examples see https://yaml.org/type/bool.html
+Alternative options for specifying this parameter are "on/off" and "true/false" (case insensitive).
+<!--Other options for specifying this parameter also work. For examples see https://yaml.org/type/bool.html Single characters do not work. -->
+
+#### 7 Masking using a Variant Calling File
+
+A VCF containing sites that need to be masked can also be provided via config:
+
+  ```
+  masking: "path/to/vcf"
+  ```
+
+The pipeline will check for flag "mask" in the FILTER column to apply masking to a particular site.
+
+If no masking file is provided, leave the field empty:
+
+  ```
+  masking: ""
+  ```
 
 ### Execution
 
-To run the pipeline activate the conda environment with 
+To run the pipeline activate (if not activated yet) the conda environment with
 
 ```
 conda activate GInPipe
@@ -265,12 +294,12 @@ The analysis results for different binning modes (plots and tables) can be found
 
 ## Demo
 
-A demo sequence set and a reference sequence are included in repository folders [`demo`](./demo). 
-The directory contains a simulated data set with 
+A demo sequence set and a reference sequence are included in repository folders [`demo`](./demo).
+The directory contains a simulated data set with
 
 - the reference sequence (demo_reference.fasta)
 - a fasta file containing the newly emerging sequences over time (demo_samples.fasta)
-- the underlying true number of emerging sequences (demo_reported_cases.tsv) 
+- the underlying true number of emerging sequences (demo_reported_cases.tsv)
 - the config file to call the pipeline with (demo_config.yaml)
 
 
@@ -287,8 +316,8 @@ The result folder is created in the [`demo`](./demo) folder where you find the o
 
 ## Running the pipeline for SARS-CoV-2 on GISAID data
 
-To run the pipeline on real data, such as COVID sequences from GISAID, download the according sequence data as well as the reference sequence and adapt the paths in the config.yaml as explained in [Initialization](#initialization). 
+To run the pipeline on real data, such as COVID sequences from GISAID, download the according sequence data as well as the reference sequence and adapt the paths in the config.yaml as explained in [Initialization](#initialization).
 
 ## Reference
-<a id="1">[1]</a> 
+<a id="1">[1]</a>
 Smith, M. R. and Trofimova, M., et al. (2021). Rapid incidence estimation from SARS-CoV-2 genomes reveals decreased case detection in Europe during summer 2020. medRxiv
