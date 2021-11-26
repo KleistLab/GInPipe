@@ -321,4 +321,4 @@ To run the pipeline on real data, such as COVID sequences from GISAID, download 
 
 ## Reference
 <a id="1">[1]</a>
-Smith, M. R. and Trofimova, M., et al. (2021). Rapid incidence estimation from SARS-CoV-2 genomes reveals decreased case detection in Europe during summer 2020. medRxiv
+Smith, M. R. and Trofimova, M., et al. (2021). Rapid incidence estimation from SARS-CoV-2 genomes reveals decreased case detection in Europe during summer 2020. Nature Communications  12, 6009. https://doi.org/10.1038/s41467-021-26267-y
