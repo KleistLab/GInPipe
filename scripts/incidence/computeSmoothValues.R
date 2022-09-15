@@ -6,11 +6,10 @@ options(warn=-1)
 dynamic_require <- function(package){
   if(eval(parse(text=paste("require(",package,")"))))
     return(TRUE)
-  install.packages(package,repos='http://cran.us.r-project.org')
+  install.packages(package)
   return (eval(parse(text=paste("require(",package,")"))))
 }
 
-#"ggformula"
 for(p in c("ggplot2", "scales","devtools")) {
   dynamic_require(p)
 }
