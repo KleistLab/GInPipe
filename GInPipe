@@ -28,7 +28,7 @@ rule strip_whitespaces:
 	input:
 		config["samples"]
 	output:
-		expand("results/raw/{sample}_fixed1.fasta", sample=basefilename)
+		temp(expand("results/raw/{sample}_fixed1.fasta", sample=basefilename))
 	conda:
 		"env/env.yml"
 	log:
@@ -40,7 +40,7 @@ rule samtools_faidx:
 	input:
 		expand("{reference}", reference=config["consensus"])
 	output:
-		expand("{reference}.fai", reference=config["consensus"])
+		temp(expand("{reference}.fai", reference=config["consensus"]))
 	log:
 		expand("logs/faidx_{sample}.log",sample=basefilename)
 	shell:
@@ -50,7 +50,7 @@ rule replace_dashes:
 	input:
 		"results/raw/{sample}_fixed1.fasta"
 	output:
-		"results/raw/{sample}_fixed12.fasta"
+		temp("results/raw/{sample}_fixed12.fasta")
 	conda:
 		"env/env.yml"
 	log:
@@ -62,7 +62,7 @@ rule samtools_dict:
 	input:
 		expand("{reference}", reference=config["consensus"])
 	output:
-		expand("{reference}.dict", reference=config["consensus"][:-6])
+		temp(expand("{reference}.dict", reference=config["consensus"][:-6]))
 	conda:
 		"env/env.yml"
 	log:
@@ -74,7 +74,7 @@ rule minimap_index_ref:
 	input:
 		expand("{reference}", reference=config["consensus"])
 	output:
-		expand("{reference}.mmi", reference=config["consensus"][:-6])
+		temp(expand("{reference}.mmi", reference=config["consensus"][:-6]))
 	conda:
 		"env/env.yml"
 	log:
@@ -87,7 +87,7 @@ rule minimap:
 		ref = expand("{reference}.mmi", reference=config["consensus"][:-6]),
 		s = "results/raw/{sample}_fixed12.fasta"
 	output:
-		"results/bam/{sample}.bam"
+		temp("results/bam/{sample}.bam")
 	conda:
 		"env/env.yml"
 	log:
@@ -99,7 +99,7 @@ rule flagstats:
 	input:
 		"results/bam/{sample}.bam"
 	output:
-		"results/bam/{sample}_flagstat.txt"
+		temp("results/bam/{sample}_flagstat.txt")
 	conda:
 		"env/env.yml"
 	log:
@@ -112,7 +112,7 @@ rule sort_bam:
 		bam = "results/bam/{sample}.bam",
 		stat = "results/bam/{sample}_flagstat.txt"
 	output:
-		"results/bam/{sample}-sorted.bam"
+		temp("results/bam/{sample}-sorted.bam")
 	log:
 		"logs/sort_{sample}.log"
 	conda:
@@ -124,7 +124,7 @@ rule index_bam:
 	input:
 		"results/bam/{sample}-sorted.bam"
 	output:
-		"results/bam/{sample}-sorted.bam.bai"
+		temp("results/bam/{sample}-sorted.bam.bai")
 	conda:
 		"env/env.yml"
 	log:
@@ -136,7 +136,7 @@ rule samtools_idxstats:
 	input:
 		"results/bam/{sample}-sorted.bam"
 	output:
-		"results/bam/{sample}-sorted-stats.txt"
+		temp("results/bam/{sample}-sorted-stats.txt")
 	conda:
 		"env/env.yml"
 	log:
@@ -150,7 +150,7 @@ rule run_binning:
 		bai = expand("results/bam/{sample}-sorted.bam.bai", sample=basefilename),
 		stats = expand("results/bam/{sample}-sorted-stats.txt", sample=basefilename)
 	output:
-		files_list = "results/bins/list_of_binnings.tsv",
+		files_list = temp("results/bins/list_of_binnings.tsv"),
 		meta = "results/meta/meta_dates.tsv"
 	params:
 		eq_num = config["number_per_bin"],
@@ -168,7 +168,7 @@ rule remove_empty_bins:
 	input:
 		"results/bins/list_of_binnings.tsv"
 	output:
-		"results/bins/list_of_binnings_filtered.tsv"
+		temp("results/bins/list_of_binnings_filtered.tsv")
 	conda:
 		"env/env.yml"
 	log:
@@ -180,7 +180,7 @@ rule incidence_estimates:
 	input:
 		"results/bins/list_of_binnings_filtered.tsv"
 	output:
-		"results/bins_incidence/table_merged_phi_estimates_var_from_size.tsv"
+		temp("results/bins_incidence/table_merged_phi_estimates_var_from_size.tsv")
 	params:
 		ref = config["consensus"],
 		cutoff = config["freq_cutoff"],
