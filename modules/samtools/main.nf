@@ -10,7 +10,7 @@ process SAMTOOLS_INDEX {
 
   script:
   """
-  /Users/mariatrofimova/Documents/samtools-1.14/bin/samtools index $bam
+  samtools index $bam
   """
 }
 
@@ -27,7 +27,7 @@ process SAMTOOLS_STATS {
   script:
   prefix = bam[0].getBaseName()
   """
-  /Users/mariatrofimova/Documents/samtools-1.14/bin/samtools idxstats $bam > "${prefix}_stats.txt"
+  samtools idxstats $bam > "${prefix}_stats.txt"
   """
 }
 
@@ -42,7 +42,7 @@ process SAMTOOLS_FAIDX {
 
   script:
   """
-  /Users/mariatrofimova/Documents/samtools-1.14/bin/samtools faidx $ref
+  samtools faidx $ref
   """
 }
 
@@ -57,7 +57,7 @@ process SAMTOOLS_DICT {
 
   script:
   """
-  /Users/mariatrofimova/Documents/samtools-1.14/bin/samtools dict $ref -o "${prefix}.dict"
+  samtools dict $ref -o "${prefix}.dict"
   """
 }
 
@@ -72,7 +72,7 @@ process SAMTOOLS_FLAGSTAT {
 
   script:
   """
-  /Users/mariatrofimova/Documents/samtools-1.14/bin/samtools flagstat $bam > "${prefix}_flagstat.txt"
+  samtools flagstat $bam > "${prefix}_flagstat.txt"
   """
 }
 
@@ -87,6 +87,6 @@ process SAMTOOLS_SORT {
 
   script:
   """
-  /Users/mariatrofimova/Documents/samtools-1.14/bin/samtools sort $bam > "${prefix}_sort.bam"
+  samtools sort $bam > "${prefix}_sort.bam"
   """
 }

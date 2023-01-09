@@ -29,7 +29,7 @@ process BWA_ALIGN {
   prefix = reads[0].getBaseName()
   """
   INDEX=`find -L ./ -name "*.amb" | sed 's/.amb//'`
-  bwa mem \$INDEX $reads | /Users/mariatrofimova/Downloads/samtools-1.10/samtools sort | /Users/mariatrofimova/Downloads/samtools-1.10/samtools view -o ${prefix}.bam
+  bwa mem \$INDEX $reads | samtools sort | samtools view -o ${prefix}.bam
   """
 }
 
@@ -47,7 +47,7 @@ process BWA_ALIGN_PAIRED {
   script:
   prefix = ref[0].getBaseName()
   """
-  bwa mem $ref $reads1 $reads2 | /Users/mariatrofimova/Downloads/samtools-1.10/samtools sort | /Users/mariatrofimova/Downloads/samtools-1.10/samtools view -o ${prefix}.bam
+  bwa mem $ref $reads1 $reads2 | samtools sort | samtools view -o ${prefix}.bam
   """
 }
 
@@ -79,6 +79,6 @@ process MINIMAP {
 
   script:
   """
-  minimap2 -a --eqx $ref $fasta | /Users/mariatrofimova/Downloads/samtools-1.10/samtools sort | /Users/mariatrofimova/Downloads/samtools-1.10/samtools view -Sb -F 0x900 > "${ref.baseName}.bam"
+  minimap2 -a --eqx $ref $fasta | samtools sort | samtools view -Sb -F 0x900 > "${ref.baseName}.bam"
   """
 }

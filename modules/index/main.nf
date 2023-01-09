@@ -12,7 +12,7 @@ process SAMTOOLS_SORT {
   script:
   prefix = bam[0].getBaseName()
   """
-  /Users/mariatrofimova/Documents/samtools-1.14/bin/samtools sort ${bam} > ${prefix}_sorted.bam
+  samtools sort ${bam} > ${prefix}_sorted.bam
   """
 }
 
@@ -28,7 +28,7 @@ process SAMTOOLS_INDEX {
 
   script:
   """
-  /Users/mariatrofimova/Documents/samtools-1.14/bin/samtools index ${bam}
+  samtools index ${bam}
   """
 }
 
@@ -45,6 +45,6 @@ process SAMTOOLS_STATS {
   script:
   prefix = bam[0].getBaseName()
   """
-  /Users/mariatrofimova/Documents/samtools-1.14/bin/samtools idxstats ${bam} > ${prefix}_stats.txt
+  samtools idxstats ${bam} > ${prefix}_stats.txt
   """
 }
