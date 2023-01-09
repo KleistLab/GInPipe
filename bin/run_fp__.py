@@ -6,25 +6,40 @@ Created on Mon Jul 13 16:44:06 2020
 @author: Maria Trofimova
 """
 
+import argparse
 import os
 from pathlib import Path
 import numpy as np
+import math
 import csv
 import pandas as pd
 import datetime
 import random
 
+
 from ginpipepy.bam_to_fingerprints import SAMtoFP
 from ginpipepy.modular_theta_from_dict import analyzeTrajectory
 from ginpipepy.parameter_est import parameterEstimation
-from ginpipepy.read_masking_vcf import VCFreader
 
+
+# Get console input
+parser = argparse.ArgumentParser()
+parser.add_argument("bins", help="Bins directory")
+parser.add_argument("header", help="Headers directory")
+parser.add_argument("ref_fasta", help="Reference FASTA file")
+parser.add_argument("region", help="Name of reference region that BAM is aligned to")
+parser.add_argument("freq_cutoff", help="Mutant frequency cutoff")
+#parser.add_argument("mask_vcf", help="VCF file with positions tto be masked")
+#parser.add_argument("out_dir", help="Output directory")
+args = parser.parse_args()
+
+# Placeholders default values - change later
+min_bin_size = 1
+min_days_span = 1
 
 # Output path
-out_dir = Path(snakemake.output[0]).parent
-RESULT_PATH = Path(os.getcwd()) / "results"
-bins_dir = RESULT_PATH / "bins"
-head_dir = bins_dir
+bins_dir = args.bins
+headers_dir = args.header
 list_binnings = os.listdir(str(bins_dir))
 binnings = []
 for file in list_binnings:
@@ -32,10 +47,11 @@ for file in list_binnings:
         binnings.append(file)
 binnings.sort()
 
-# Reference location
-reference = str(snakemake.params.ref)
-## Name of reference sequence
 
+# Reference location
+reference = str(args.ref_fasta)
+
+# Name of reference sequence
 with open(str(reference), "r") as file:
     header = file.readline()
 refname = header.strip(">")
@@ -43,30 +59,40 @@ refname_full = refname.strip("\n")
 split_header = refname_full.split()
 #Minimap2 header
 refname = split_header[0]
+region = args.region
 
 # Grouping variable - suffix for all files
-file_suffix = snakemake.params.group
+#file_suffix = args.group
 
 # Base frequency cutoff
-freqCutoff = snakemake.params.cutoff
+freqCutoff = int(args.freq_cutoff)
 
 # Filtering and transformation parameters
-min_bin_size = snakemake.params.min_bin_size
-min_days_span = snakemake.params.min_days_span
-max_days_span = snakemake.params.max_days_span
+min_bin_size = 1
+min_days_span = 1
+max_days_span = 5
 
 # Masking parameters
-masking_file = snakemake.params.vcf
+masking_file = ''
 
 # Collect all trajectories to merge into one data set
 bin_merging_data = []
+
+# List header files
+list_headers = [x for x in os.listdir(headers_dir) if not x.startswith('.')]
+headers = []
+for file in list_headers:
+    if file.startswith("header"):
+        headers.append(file)
+headers.sort()
+
 
 #List individual binning directories
 for folder in binnings:
     print("Current binning folder: %s" % folder)
     # List all files in a directory
     binnings_dir = "%s/%s" % (bins_dir, folder)
-    headers_dir = "%s/%s" % (head_dir, folder)
+    headers_dir = "%s/%s" % (headers_dir, folder)
     list_files = os.listdir(binnings_dir)
     directory = os.listdir(binnings_dir)
     # List BAM files
@@ -103,12 +129,12 @@ for folder in binnings:
     mut_proportion, filtered_seqset = filt.run()
     print(" Done.")
 
-    # Masking sites soecified in optional VCF file
-    if masking_file:
-        print(" Masking bases based on provided Variant Calling File...")
-        mask = VCFreader(masking_file, reference, filtered_seqset)
-        filtered_seqset = mask.mask_bases_in_fp()
-        print(" Done.")
+    # Masking sites specified in optional VCF file
+    #if masking_file:
+    #    print(" Masking bases based on provided Variant Calling File...")
+    #    mask = VCFreader(masking_file, reference, filtered_seqset)
+    #    filtered_seqset = mask.mask_bases_in_fp()
+    #    print(" Done.")
 
     # Get the time span and mean date of each bin
     mean_header_bin = []
@@ -143,8 +169,8 @@ for folder in binnings:
     print(" Writing binning table...")
 
     # Write bin file
-    name_table = "table_%s_%s_phi_estimate_var_from_size.tsv" % (file_suffix,folder)
-    table_path = "%s/%s" % (str(out_dir), name_table)
+    name_table = "table_%s_%s_phi_estimate_var_from_size.tsv" % ('example',folder)
+    table_path = "%s" % (name_table)
     with open(table_path, 'w+', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter='\t',
                                 quotechar='|', quoting=csv.QUOTE_MINIMAL)
@@ -175,7 +201,7 @@ bin_merging_data_ = sorted(bin_merging_data)
 times = np.arange(0, len(bin_merging_data_))
 name_table = "table_merged_phi_estimates_var_from_size.tsv"
 
-table_path = "%s/%s" % (str(out_dir),name_table)
+table_path = name_table
 
 with open(table_path, 'w+', newline='') as csvfile:
     writer = csv.writer(csvfile, delimiter='\t',
@@ -195,5 +221,4 @@ with open(table_path, 'w+', newline='') as csvfile:
                             bin_merging_data_[i][7],
                             bin_merging_data_[i][8],
                             bin_merging_data_[i][9]])
-
 print(" Done.")

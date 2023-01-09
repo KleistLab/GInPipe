@@ -12,12 +12,20 @@ import os
 import csv
 import subprocess
 
+import argparse
+#sys.path.append(".") 
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument("bins_path", help="Bins directory")
+args = parser.parse_args()
+
 '''
 Create tsv file containing all bin file names per binning folder without empty bins
 '''
-bins_path = snakemake.input[0]
-bins_ppath = Path(bins_path)
-bins_dir = bins_ppath.parent.absolute()
+ 
+bins_path = args.bins_path
+bins_dir = Path(bins_path)
 print(bins_dir)
 bins = os.listdir(str(bins_dir))
 print(bins)
@@ -42,7 +50,7 @@ for folder in bins_filter:
             os.remove(range_name)
         else:
             bam_name = "%s/%s/%s" % (bins_dir, folder, files_filter[i])
-            subprocess.check_call("samtools index %s" % bam_name, shell=True)
+            subprocess.check_call("/Users/mariatrofimova/Documents/samtools-1.14/bin/samtools index %s" % bam_name, shell=True)
 
 name_file = "list_of_binnings_filtered.tsv"
 file_path = "%s/%s" % (bins_dir, name_file)

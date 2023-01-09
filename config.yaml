@@ -1,29 +1,3 @@
-# 1. Full path of raw samples data filename with collection dates in FASTA headers
-samples: "path/to/sample_fasta"
-# 2. Reported cases table in TSV or CSV format full path with delimiter, date column name,
-# active cases column name, date format
-# Examples for date formatting:
-# 1/22/20: "%m/%d/%y"
-# 22-01-2020: "%d-%m-%Y"
-# 2020-02-24T18:00:00: "%Y-%m-%dT%H:%M:%S"
-reported_cases: ["path/to/reported_cases_table","delim","date","new_cases","%Y-%m-%d"]
-# 3. Consensus sequence full file path in FASTA format
-consensus: "path/to/consensus_fasta"
-# 4. Number of sequences per bin for binning mode with equally sized bins
-number_per_bin: []
-# 5. Number of days per bin for binning mode with equal amount of calendar days
-days_per_bin: [10,15,20]
-# 6. Minimal bin size - some fraction of big bin file
-min_bin_size: 15
-# 7. Minimal days span
-min_days_span: 3
-# 8. Maximal days span
-max_days_span: 21
-# 9. Mutant base frequency cutoff - as count
-freq_cutoff: 2
-# 10. Sample name for plot grouping, e.g. country or data set name
-group: "country"
-# 11. Calculate R0! y/n
-R0: y
-# 12. Use a masking file (VCF)
-masking: "path/to/vcf"
+params.ref = '/Users/mariatrofimova/Documents/GitHub/input/sim_1_NS_shredded_0.005.fasta'
+params.reads= '/Users/mariatrofimova/Documents/GitHub/input/sim_1.fasta'
+params.region = 'initialSequence'
