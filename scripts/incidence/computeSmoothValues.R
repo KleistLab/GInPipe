@@ -165,17 +165,19 @@ if(file.exists(inputFile)) {
   smooth.table <- smooth.table[smooth.table$smoothMedian != 0,]
   # Add date column
   smooth.table$date <- daysAsDate(smooth.table$t, minDate)
+  
+  cat("--- Write output tables and plots ---\n\n")
+  
   # Write tables and plot
   write.csv(smooth.table,paste0(outputDir,"/",fileName), row.names = F, col.names = T)
   outputFileInter<-paste0(outputDir,"/",substr(fileName,1,(nchar(fileName)-4)),".pdf")
   outputFileInterDots<-paste0(outputDir,"/","wdots_",substr(fileName,1,(nchar(fileName)-4)),".pdf")
   plot_smoothed_phi_with_new_cases(smooth.table, point.table, cases.table, outputFileInter, outputFileInterDots, country)
 
-  cat("--- Write output tables and plots ---\n\n")
   # Write estimated theta table
   #point.table.clean <- data.frame(date=point.table$meanBinDate, phi=point.table$value, variance=point.table$variance,
   #                                sampleSize=point.table$sampleSize, haplotypes=point.table$haplotypes, numMut=point.table$numMut)
-  point.table.clean <- data.frame(t=point.table$t, date=point.table$meanBinDate,phi=point.table$value,variance=point.table$variance,
+  point.table.clean <- data.frame(t=point.table$t, t_sd=point.table$t_sd, date=point.table$meanBinDate,phi=point.table$value,variance=point.table$variance,
                                   sampleSize=point.table$sampleSize, binning=point.table$binning, daysPerBin=point.table$daysPerBin,
                                   haplotypes=point.table$haplotypes,numMut=point.table$numMut)
   write.csv(point.table.clean,paste0(outputDir,"/phi_estimate_",country,".csv"), row.names = F)
