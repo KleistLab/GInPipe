@@ -46,11 +46,44 @@ process SORT_AND_BIN_WW {
   val num_repeats
 
   output:
-  path "sorted_binned", emit: sb
+  path "*.bam", emit: sb
 
   script:
   """
   mkdir sorted_binned
   wastewater_run.py $list_clean_bins $ref $region $num_repeats
+  """
+}
+
+// Binning TSV instead of BAM
+process BINNING_TEMP {
+  tag "$prefix"
+
+  input:
+  path fp_table
+  
+  output:
+  path "bins", emit: temp_bins
+
+  script:
+  """
+  run_binning_temp.py $fp_table
+  """
+}
+
+process BINNING_POS {
+  tag "$prefix"
+  publishDir(path: "standard_$prefix", mode: "copy",)
+
+  input:
+  path bins
+  val ref
+
+  output:
+  path "pos_bins", emit: pos_bins
+
+  script:
+  """
+  run_binning_pos.py $bins $ref
   """
 }

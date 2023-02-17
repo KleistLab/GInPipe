@@ -36,6 +36,41 @@ process RECONSTRUCT_2 {
 
   script:
   """
-  run_fp__.py $sb $sb $ref $region $freq_cutoff
+  run_fp_2.py $sb $sb $ref $region $freq_cutoff
+  """
+}
+
+process READS_TO_FP_PAIRED {
+  tag "$prefix"
+  ignore_selector_warnings = true
+
+  input:
+  val prefix
+  path bam
+  path ref
+  val region
+
+  output:
+  path "*.tsv", emit: fp_table
+
+  script:
+  """
+  run_fp_3.py $bam $ref $region
+  """
+}
+
+process ESTIMATOR {
+  tag "$prefix"
+  publishDir(path: "standard_$prefix", mode: "copy",)
+
+  input:
+  path pos_dir
+  
+  output:
+  path "*.tsv", emit: estimates
+
+  script:
+  """
+  run_incidence_estimator.py $pos_dir
   """
 }
