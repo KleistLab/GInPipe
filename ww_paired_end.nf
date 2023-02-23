@@ -4,7 +4,7 @@ nextflow.enable.dsl=2
 /*
  * Process import
  */
-include { FASTQC; MULTIQC } from './modules/qc/main.nf'
+include { FASTQC; MULTIQC; TRIM_LOW_QUAL } from './modules/qc/main.nf'
 include { MINIMAP_PAIRED; MINIMAP_INDEX; BWA_ALIGN_PAIRED; BWA_INDEX }  from './modules/align/main'
 include { SAMTOOLS_INDEX; SAMTOOLS_STATS; SAMTOOLS_SORT_BY_NAME } from './modules/samtools/main'
 include { BINNING_TEMP; BINNING_POS; ERASE_EMPTY; SORT_AND_BIN_WW }  from './modules/binning/main'
@@ -38,8 +38,9 @@ workflow {
   num_repeats_ch = Channel.value(params.num_repeats)
   //FASTQC(reads_ch)
   //MULTIQC(FASTQC.out.fastqc_out)
+  TRIM_LOW_QUAL(reads1_ch, reads2_ch)
   MINIMAP_INDEX(ref_ch)
-  MINIMAP_PAIRED(ref_ch, reads1_ch, reads2_ch, MINIMAP_INDEX.out.index)
+  MINIMAP_PAIRED(ref_ch, TRIM_LOW_QUAL.out.trim_fastqc1, TRIM_LOW_QUAL.out.trim_fastqc2, MINIMAP_INDEX.out.index)
   READS_TO_FP_PAIRED(prefix, MINIMAP_PAIRED.out.bam, ref_ch, region_ch)
   BINNING_TEMP(READS_TO_FP_PAIRED.out.fp_table)
   BINNING_POS(BINNING_TEMP.out.temp_bins, ref_ch)

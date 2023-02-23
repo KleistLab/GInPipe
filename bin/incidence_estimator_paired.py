@@ -119,7 +119,7 @@ class IncidenceEstimator:
                 outwriter = csv.writer(outfile, delimiter='\t')
                 # posit_binning_date_start/end are the first and last dates encountered
                 # in all positional bins at time point of estimate
-                header = ['posit_binning_date_start','posit_binning_date_start','estimate','lower_05','upper_05','min','max']
+                header = ['posit_binning_date_start','posit_binning_date_end','estimate','lower_05','upper_05','min','max']
                 outwriter.writerow(header)
                 times_dir = '%s/%s' % (self.traj_dir,mode)
                 list_times_dir = os.listdir(times_dir)
@@ -132,7 +132,6 @@ class IncidenceEstimator:
                     estimates, start_dates, end_dates = self._makePositionalEstimate(pos_dir,pos_filenames)
                     vals = np.array(estimates)
                     interval = self._confidenceInterval(vals)
-                    print(min(start_dates))
                     mean = np.mean(vals)
                     minimum = np.min(vals)
                     maximum = np.max(vals)

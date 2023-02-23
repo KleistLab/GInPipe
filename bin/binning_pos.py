@@ -2,8 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import pandas as pd
+import numpy as np
+import scipy.signal
 import math
 from Bio import SeqIO
+from matplotlib import pyplot as plt
 
 
 class BinningPosition:
@@ -30,6 +33,18 @@ class BinningPosition:
         # TODO: name without ">"
         self.name = name
 
+    def _getBinningScheme(self):
+        """Record read start positions to select binning windows start
+        """
+        t = pd.read_table(self.table, delimiter="\t")
+        start_positions = t['start_pair']
+        start_values, start_counts = np.unique(start_positions, return_counts=True)
+        plt.plot(start_values,start_counts)
+        plt.savefig('foo.pdf')
+        #end_positions = t['end_pair']
+        #end_values, end_counts = np.unique(end_positions, return_counts=True)
+        return 0
+
     def _inferMeanFragmentLength(self):
         # If fastQC output cannot be used
         return 0
@@ -40,6 +55,7 @@ class BinningPosition:
         # Preset bin size and temp files
         # Infer pair length
         self._getReferenceInfo()
+        exec = self._getBinningScheme()
 
         num_bins = math.ceil(self.ref_length/self.mean_length)
         for i in range(num_bins):

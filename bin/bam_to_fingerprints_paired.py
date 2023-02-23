@@ -35,6 +35,7 @@ class SAMtoFP:
         self.filename = filename
         self.reference = reffile
         self.ref_name = refname
+        self.qual_cutoff = 30
 
     def _ambiguous_dict(self, base, refbase):
         """
@@ -77,7 +78,7 @@ class SAMtoFP:
         return variant
 
 
-    def _cigar_to_fp(self, seq, cigar, start):
+    def _cigar_to_fp(self, seq, cigar, quals, start):
         """
         Translate CIGAR strings to sequence fingerprints in format.
 
@@ -154,26 +155,29 @@ class SAMtoFP:
             # Record base that is a mismatch (X) on both query and reference counters
             elif operation==8:
                 # Also write the mutation event in the string/fingerprint +ref_seq[counter]+'>'
-                for j in range(length):
-                    alt_rec = str(counter+1)
-                    alt_base = seq[counter_q]
-                    if str(alt_base)!='N':
-                        # Record mutant base
-                        if str(alt_base) in amblist:
-                            # Ambiguous call
-                            bcall = self._ambiguous_dict(str(alt_base), ref_seq[counter])
-                            if bcall==ref_seq[counter]:
-                                pass
+                # QUALS CHECK?
+                if quals[counter_q]>self.qual_cutoff:
+                    print('Quality passed: ',quals[counter_q])
+                    for j in range(length):
+                        alt_rec = str(counter+1)
+                        alt_base = seq[counter_q]
+                        if str(alt_base)!='N':
+                            # Record mutant base
+                            if str(alt_base) in amblist:
+                                # Ambiguous call
+                                bcall = self._ambiguous_dict(str(alt_base), ref_seq[counter])
+                                if bcall==ref_seq[counter]:
+                                    pass
+                                else:
+                                    mutants_base.append(alt_rec+'>'+bcall)
+                                    mutants_pairs_list.append((counter+1,bcall))
+                                    mutants_pos += 1
                             else:
-                                mutants_base.append(alt_rec+'>'+bcall)
-                                mutants_pairs_list.append((counter+1,bcall))
+                                mutants_base.append(alt_rec+'>'+str(alt_base))
+                                mutants_pairs_list.append((counter+1,str(alt_base)))
                                 mutants_pos += 1
-                        else:
-                            mutants_base.append(alt_rec+'>'+str(alt_base))
-                            mutants_pairs_list.append((counter+1,str(alt_base)))
-                            mutants_pos += 1
-                    counter += 1
-                    counter_q += 1
+                        counter += 1
+                        counter_q += 1
         # Merge mutant fingerprintts to one string with positions separated by "-"
         mutantsstrbase = ''
         if mutants_base!=[]:
@@ -181,7 +185,7 @@ class SAMtoFP:
 
         return mutantsstrbase, mutants_pairs_list
 
-    def _cigar_to_fp_mate(self, seq, cigar, start):
+    def _cigar_to_fp_mate(self, seq, cigar, quals, start):
         """
         Translate CIGAR strings to sequence fingerprints in format.
 
@@ -258,26 +262,29 @@ class SAMtoFP:
             # Record base that is a mismatch (X) on both query and reference counters
             elif operation==8:
                 # Also write the mutation event in the string/fingerprint +ref_seq[counter]+'>'
-                for j in range(length):
-                    alt_rec = str(counter+1)
-                    alt_base = seq[counter_q]
-                    if str(alt_base)!='N':
-                        # Record mutant base
-                        if str(alt_base) in amblist:
-                            # Ambiguous call
-                            bcall = self._ambiguous_dict(str(alt_base), ref_seq[counter])
-                            if bcall==ref_seq[counter]:
-                                pass
+                # QUALS CHECK?
+                if quals[counter_q]>self.qual_cutoff:
+                    print('Quality passed: ',quals[counter_q])
+                    for j in range(length):
+                        alt_rec = str(counter+1)
+                        alt_base = seq[counter_q]
+                        if str(alt_base)!='N':
+                            # Record mutant base
+                            if str(alt_base) in amblist:
+                                # Ambiguous call
+                                bcall = self._ambiguous_dict(str(alt_base), ref_seq[counter])
+                                if bcall==ref_seq[counter]:
+                                    pass
+                                else:
+                                    mutants_base.append(alt_rec+'>'+bcall)
+                                    #mutants_pairs_list.append((counter+1,bcall))
+                                    mutants_pos += 1
                             else:
-                                mutants_base.append(alt_rec+'>'+bcall)
-                                #mutants_pairs_list.append((counter+1,bcall))
+                                mutants_base.append(alt_rec+'>'+str(alt_base))
+                                #mutants_pairs_list.append((counter+1,str(alt_base)))
                                 mutants_pos += 1
-                        else:
-                            mutants_base.append(alt_rec+'>'+str(alt_base))
-                            #mutants_pairs_list.append((counter+1,str(alt_base)))
-                            mutants_pos += 1
-                    counter += 1
-                    counter_q += 1
+                        counter += 1
+                        counter_q += 1
         # Merge mutant fingerprintts to one string with positions separated by "-"
         mutants_string = ''
         if mutants_base!=[]:
@@ -325,7 +332,9 @@ class SAMtoFP:
             seq = str(read.query_sequence)
             positions = read.get_reference_positions()
             cigar = read.cigartuples
-            print(name)
+            # Base qualities
+            quals = read.query_qualities
+            
             if len(positions)>0:
                 start = positions[0]
                 if len(pairs)>0:
@@ -338,6 +347,7 @@ class SAMtoFP:
                         # Trim with cigar string
                         mutants_string2 = self._cigar_to_fp_mate(seq, 
                                                                 cigar,
+                                                                quals,
                                                                 start)
                         fp1.append(mutants_string1)
                         fp2.append(mutants_string2)
@@ -349,6 +359,7 @@ class SAMtoFP:
                         print("Found first in pair")
                         mutants_string = self._cigar_to_fp_mate(seq, 
                                                                 cigar,
+                                                                quals,
                                                                 start)
                         pairs[name] = tuple([mutants_string,start])
                 else:
@@ -356,7 +367,8 @@ class SAMtoFP:
                     # Trim with cigar string
                     mutants_string = self._cigar_to_fp_mate(seq, 
                                                             cigar,
+                                                            quals,
                                                             start)
                     pairs[name] = tuple([mutants_string,start])
-               
+
         return fp1, fp2, names, start_pair, end_pair

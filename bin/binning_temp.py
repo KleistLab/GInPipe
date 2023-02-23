@@ -49,12 +49,15 @@ class BinningTemporal:
     def binByDays(self):
         # Make date column
         dates = self._makeDateColumn()
+        print(self.table)
         # Table sorted by date
         self.table["date"] = dates
         # Sort table by date
         self.table = self.table.sort_values(by=["date"])
-        start = strptime(dates[0], "%Y-%d-%m").date()
-        end = strptime(dates[-1], "%Y-%d-%m").date() 
+        print(self.table["date"])
+        date_col = self.table["date"]
+        start = strptime(date_col[0], "%Y-%d-%m").date()
+        end = strptime(date_col[len(date_col)-1], "%Y-%d-%m").date() 
         n_days = (end - start).days + 1
         days_per_bin = int(self.size)
         n_bins = math.ceil(n_days / days_per_bin)

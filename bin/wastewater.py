@@ -156,7 +156,7 @@ class wastewaterReadsToSeq:
         return num_bins
 
     def _writeBinFiles2(self):
-        """ Write bin files containing reads from bins
+        """ Write position bin files containing reads from temporal bins
         """
         # Bin size from FastQC stats
         mean_length, total_bases = self._inferMeanLength()

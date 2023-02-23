@@ -73,7 +73,6 @@ process BINNING_TEMP {
 
 process BINNING_POS {
   tag "$prefix"
-  publishDir(path: "standard_$prefix", mode: "copy",)
 
   input:
   path bins

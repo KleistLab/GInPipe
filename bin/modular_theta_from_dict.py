@@ -224,7 +224,7 @@ class analyzeTrajectory:
         num_seqs = []
         # Dictionary of mutants
         # key: unique sequence
-        # value: list of length t with 1 if sequence presentt in bin t and
+        # value: list of length t with 1 if sequence present in bin t and
         # 0 otherwise
         mutSeqDict = dict()
 

@@ -1,5 +1,5 @@
 process RECONSTRUCT_1 {
-  publishDir(path: "ww_$prefix", mode: "copy",)
+  publishDir(path: "$prefix", mode: "copy",)
   ignore_selector_warnings = true
 
   input:
@@ -21,7 +21,7 @@ process RECONSTRUCT_1 {
 }
 
 process RECONSTRUCT_2 {
-  publishDir(path: "standard_$prefix", mode: "copy",)
+  publishDir(path: "$prefix", mode: "copy",)
   ignore_selector_warnings = true
 
   input:
@@ -61,7 +61,7 @@ process READS_TO_FP_PAIRED {
 
 process ESTIMATOR {
   tag "$prefix"
-  publishDir(path: "standard_$prefix", mode: "copy",)
+  publishDir(path: "$prefix", mode: "copy",)
 
   input:
   path pos_dir

@@ -85,11 +85,12 @@ process MINIMAP {
 
 process MINIMAP_PAIRED {
   tag "$prefix"
+  publishDir "${prefix}/align", mode: 'copy', overwrite: false
 
   input:
   path ref
-  path fasta1
-  path fasta2
+  path f1
+  path f2
   path index
 
   output:
@@ -97,6 +98,6 @@ process MINIMAP_PAIRED {
 
   script:
   """
-  minimap2 -ax sr --eqx $ref $fasta1 $fasta2 | /Users/mariatrofimova/Documents/samtools-1.14/bin/samtools view -Sb | /Users/mariatrofimova/Documents/samtools-1.14/bin/samtools sort -o "${ref.baseName}_sorted.bam"
+  minimap2 -ax sr --eqx $ref $f1 $f2 | /Users/mariatrofimova/Documents/samtools-1.14/bin/samtools view -Sb | /Users/mariatrofimova/Documents/samtools-1.14/bin/samtools sort -o "${ref.baseName}_sorted.bam"
   """
 }

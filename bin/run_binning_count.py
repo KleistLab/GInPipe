@@ -21,7 +21,7 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("bam", help="BAM file")
 parser.add_argument("stats", help="Samtools stats file")
-parser.add_argument("ref", help="Refrence FASTA file")
+parser.add_argument("ref", help="Reference FASTA file")
 #parser.add_argument("work_dir", help="Working directory")
 
 
@@ -56,7 +56,7 @@ def main(file_name,
         header = file.readline()
     param3 = header.strip(">")
     param3header = param3.strip("\n")
-    #Split header on whitespaces -- if whitespaces present the forst string will be taken
+    #Split header on whitespaces -- if whitespaces present the first string will be taken
     split_header = param3header.split()
     #Minimap2 header
     mm_header = split_header[0]
