@@ -77,12 +77,13 @@ process BINNING_POS {
   input:
   path bins
   val ref
+  path bed
 
   output:
   path "pos_bins", emit: pos_bins
 
   script:
   """
-  run_binning_pos.py $bins $ref
+  run_binning_pos.py $bins $ref $bed
   """
 }

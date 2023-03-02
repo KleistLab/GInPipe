@@ -119,7 +119,7 @@ class IncidenceEstimator:
                 outwriter = csv.writer(outfile, delimiter='\t')
                 # posit_binning_date_start/end are the first and last dates encountered
                 # in all positional bins at time point of estimate
-                header = ['posit_binning_date_start','posit_binning_date_end','estimate','lower_05','upper_05','min','max']
+                header = ['posit_binning_date_start','posit_binning_date_end','mean','median','lower_05','upper_05','min','max']
                 outwriter.writerow(header)
                 times_dir = '%s/%s' % (self.traj_dir,mode)
                 list_times_dir = os.listdir(times_dir)
@@ -133,9 +133,19 @@ class IncidenceEstimator:
                     vals = np.array(estimates)
                     interval = self._confidenceInterval(vals)
                     mean = np.mean(vals)
+                    median = np.median(vals)
                     minimum = np.min(vals)
                     maximum = np.max(vals)
-                    line = [min(start_dates),max(end_dates),mean,interval[0],interval[1],minimum,maximum]
+                    line = [min(start_dates),max(end_dates),mean,median,interval[0],interval[1],minimum,maximum]
                     outwriter.writerow(line)
+
+                    # Write a separate table with all positional estimates
+                    filename_est = '%s_%s_%s_%s.tsv' % (mode,'incidence','pos-est',time_point)
+                    with open(filename_est, 'w+') as outfile_est:
+                        outwriter_est = csv.writer(outfile_est, delimiter='\t')
+                        header_est = ['window','estimate']
+                        outwriter_est.writerow(header_est)
+                        for i in range(len(estimates)):
+                            outwriter_est.writerow([i,estimates[i]])
 
         return 0

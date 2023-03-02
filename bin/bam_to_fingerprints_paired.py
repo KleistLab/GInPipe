@@ -156,7 +156,7 @@ class SAMtoFP:
             elif operation==8:
                 # Also write the mutation event in the string/fingerprint +ref_seq[counter]+'>'
                 # QUALS CHECK?
-                if quals[counter_q]>self.qual_cutoff:
+                if quals[counter_q]>=self.qual_cutoff:
                     print('Quality passed: ',quals[counter_q])
                     for j in range(length):
                         alt_rec = str(counter+1)
@@ -239,31 +239,29 @@ class SAMtoFP:
             operation, length = cigtuple
             if operation==0:
                 counter += length
-                #if counter > 21544:
-                #    break
                 counter_q += length
+
             elif operation==1:
                 counter_q += length
+
             elif operation==2:
                 counter += length
-                #if counter > 21544:
-                #   break
+                
             elif operation==3:
                 counter += length
-                #if counter > 21544:
-                 #   break
+                
             elif operation==4:
                 counter_q += length
+
             elif operation==7:
                 counter += length
-                #if counter > 21544:
-                #    break
                 counter_q += length
+
             # Record base that is a mismatch (X) on both query and reference counters
             elif operation==8:
                 # Also write the mutation event in the string/fingerprint +ref_seq[counter]+'>'
                 # QUALS CHECK?
-                if quals[counter_q]>self.qual_cutoff:
+                if quals[counter_q]>=self.qual_cutoff:
                     print('Quality passed: ',quals[counter_q])
                     for j in range(length):
                         alt_rec = str(counter+1)
@@ -283,8 +281,9 @@ class SAMtoFP:
                                 mutants_base.append(alt_rec+'>'+str(alt_base))
                                 #mutants_pairs_list.append((counter+1,str(alt_base)))
                                 mutants_pos += 1
-                        counter += 1
-                        counter_q += 1
+                counter += length
+                counter_q += length
+                        
         # Merge mutant fingerprintts to one string with positions separated by "-"
         mutants_string = ''
         if mutants_base!=[]:

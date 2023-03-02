@@ -14,6 +14,7 @@ params.reads1 = '/Users/mariatrofimova/Documents/GitHub/SWAMPy/simulation_output
 params.reads2 = '/Users/mariatrofimova/Documents/GitHub/SWAMPy/simulation_output/example_R2.fastq'
 params.ref = '/Users/mariatrofimova/Documents/GitHub/SWAMPy/simulation_output/genomes_ref.fasta'
 params.region = 'initialSequence'
+params.bed = '/Users/mariatrofimova/Documents/GitHub/SWAMPy/primer_sets/articV3_no_alt.bed'
 //params.cons = '/Users/mariatrofimova/Documents/GitHub/GInSim-main/results_pmut_0.0001/fasta/sim_1_NS.fasta'
 //params.true_table = '/Users/mariatrofimova/Documents/GitHub/GInSim-main/add_fitness_10_pos_exp_growth/table/sim_1_NS_shredded_0.005.tsv'
 //params.masking_vcf = ''
@@ -30,6 +31,7 @@ workflow {
   reads2_ch = Channel.of(params.reads2)
   //reads_ch = Channel.of(params.reads1, params.reads2)
   region_ch = Channel.value(params.region)
+  bed_ch = Channel.of(params.bed)
   // Only works with one mode at a time! 
   // TODO: Find a workaround
   modes = ['days']
@@ -38,12 +40,12 @@ workflow {
   num_repeats_ch = Channel.value(params.num_repeats)
   //FASTQC(reads_ch)
   //MULTIQC(FASTQC.out.fastqc_out)
-  TRIM_LOW_QUAL(reads1_ch, reads2_ch)
+  //TRIM_LOW_QUAL(reads1_ch, reads2_ch)
   MINIMAP_INDEX(ref_ch)
-  MINIMAP_PAIRED(ref_ch, TRIM_LOW_QUAL.out.trim_fastqc1, TRIM_LOW_QUAL.out.trim_fastqc2, MINIMAP_INDEX.out.index)
+  MINIMAP_PAIRED(ref_ch, reads1_ch, reads2_ch, MINIMAP_INDEX.out.index)
   READS_TO_FP_PAIRED(prefix, MINIMAP_PAIRED.out.bam, ref_ch, region_ch)
   BINNING_TEMP(READS_TO_FP_PAIRED.out.fp_table)
-  BINNING_POS(BINNING_TEMP.out.temp_bins, ref_ch)
+  BINNING_POS(BINNING_TEMP.out.temp_bins, ref_ch, bed_ch)
   ESTIMATOR(BINNING_POS.out.pos_bins).view()
   //SAMTOOLS_INDEX(MINIMAP_PAIRED.out.bam)
   //SAMTOOLS_STATS(MINIMAP_PAIRED.out.bam, SAMTOOLS_INDEX.out.samtools_idx)

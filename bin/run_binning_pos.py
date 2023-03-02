@@ -11,6 +11,7 @@ parser.add_argument("dir", help="Directory of temporal binnings")
 #parser.add_argument("size", help="Mean read length")
 parser.add_argument("ref", help="Reference file")
 #parser.add_argument("work_dir", help="Working directory")
+parser.add_argument("bed", help="BED file containing primer positions")
 
 args = parser.parse_args()
 
@@ -31,5 +32,5 @@ for bin_mode in bin_modes:
         out_table_dir = '%s/%s' % (pos_dir, table[0:-4])
         print(out_table_dir)
         os.mkdir(out_table_dir)
-        pos_binning = BinningPosition(table_dir, 385, args.ref, out_table_dir)
+        pos_binning = BinningPosition(table_dir, 385, args.ref, out_table_dir, args.bed)
         pos_binning.bin()
