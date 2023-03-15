@@ -68,10 +68,11 @@ class IncidenceEstimator:
             return sol_f.x[0]
 
     def _countHaplotypesAndMutants(self, table):
+        n_seqs = len(table['fp2'])
         fps = set(zip(table['fp1'].astype(str),table['fp2'].astype(str)))
         n_mutants = sum([str(a)!='nan' or str(b)!='nan' for a, b in zip(table['fp1'],table['fp2'])])
 
-        return fps, n_mutants
+        return fps, n_mutants, n_seqs
 
 
     def _makePositionalEstimate(self, dir, filenames):
@@ -83,6 +84,7 @@ class IncidenceEstimator:
         # Additional data 
         haplotypes = []
         mutants = []
+        set_sizes = []
         for filename in filenames:
             table_path = '%s/%s' % (dir, filename)
             print(table_path)
@@ -100,13 +102,14 @@ class IncidenceEstimator:
                 end_dates.append(end)
 
                 #fp_table = pd.DataFrame(list(zip(table['fp1'], table['fp2'])),columns =['fp1', 'fp2'])
-                haplos, n_mutants = self._countHaplotypesAndMutants(table)
+                haplos, n_mutants, N = self._countHaplotypesAndMutants(table)
                 print(len(haplos),n_mutants)
                 sol = self._optimize(len(haplos), n_mutants)
                 estimates.append(sol)
-                haplotypes.append(haplos)
+                haplotypes.append(len(haplos))
                 mutants.append(n_mutants)
-        return estimates, start_dates, end_dates, haplotypes, mutants
+                set_sizes.append(N)
+        return estimates, start_dates, end_dates, haplotypes, mutants, set_sizes
 
     def _confidenceInterval(self, vals):
         interval = t.interval(alpha=0.95, df=len(vals)-1,
@@ -136,7 +139,7 @@ class IncidenceEstimator:
                     pos_filenames = os.listdir(pos_dir)
 
                     # Collect estimates
-                    estimates, start_dates, end_dates, haplotypes, mutants = self._makePositionalEstimate(pos_dir,pos_filenames)
+                    estimates, start_dates, end_dates, haplotypes, mutants, set_sizes = self._makePositionalEstimate(pos_dir,pos_filenames)
                     vals = np.array(estimates)
                     interval = self._confidenceInterval(vals)
                     mean = np.mean(vals)
@@ -150,9 +153,9 @@ class IncidenceEstimator:
                     filename_est = '%s_%s_%s_%s.tsv' % (mode,'incidence','pos-est',time_point)
                     with open(filename_est, 'w+') as outfile_est:
                         outwriter_est = csv.writer(outfile_est, delimiter='\t')
-                        header_est = ['window','estimate','n_haplos','n_mutants']
+                        header_est = ['window','estimate','n_haplos','n_mutants','n_pairs']
                         outwriter_est.writerow(header_est)
                         for i in range(len(estimates)):
-                            outwriter_est.writerow([i,estimates[i],haplotypes[i],mutants[i]])
+                            outwriter_est.writerow([i,estimates[i],haplotypes[i],mutants[i],set_sizes[i]])
 
         return 0
