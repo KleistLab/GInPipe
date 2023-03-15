@@ -22,7 +22,6 @@ process RECONSTRUCT_1 {
 
 process RECONSTRUCT_2 {
   publishDir(path: "$prefix", mode: "copy",)
-  ignore_selector_warnings = true
 
   input:
   val prefix
@@ -32,7 +31,7 @@ process RECONSTRUCT_2 {
   val freq_cutoff
 
   output:
-  path "table_merged_phi_estimates_var_from_size.tsv", emit: recon
+  path "table_example_eq_days_*.tsv", emit: recon
 
   script:
   """
