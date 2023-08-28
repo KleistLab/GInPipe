@@ -112,10 +112,14 @@ for folder in binnings:
 
     # Get the time span and mean date of each bin
     mean_header_bin = []
+    # Standard deviation of days per bin
+    t_sd_bin = []
     # Internal times vector from 0 to N
     times = []
     # Number of days per bin - check compliance with filter
     num_days_per_bin = []
+    # Standard deviation of the bin time
+    times_sd = []
     i = 0
     for header_file in headers:
         # Read header table
@@ -124,14 +128,19 @@ for folder in binnings:
         if not table.empty:
             # List dates column
             dates = table['date'].tolist()
-            dates_dt = np.array(dates, dtype='datetime64[s]')
+            dates_dt = np.array(dates, dtype='datetime64[D]')
             # Days difference
             delta_days = (max(dates_dt) - min(dates_dt)) / np.timedelta64(1, 'D') + 1
             num_days_per_bin.append(delta_days)
             # Mean date of bin
-            mean = (np.array(dates, dtype='datetime64[s]').view('i8').mean().astype('datetime64[s]'))
-            mean_header_bin.append(str(mean)[:10])
+            mean = dates_dt.view('i8').mean().astype('datetime64[D]')
+            # Sd date of bin
+            sd = dates_dt.view('i8').std()
+
+            mean_header_bin.append(str(mean))
             times.append(i)
+            t_sd_bin.append(str(sd))
+
             i += 1
 
     # Compute opttimal metric paramteres for each individual bin
@@ -148,10 +157,10 @@ for folder in binnings:
     with open(table_path, 'w+', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter='\t',
                                 quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        writer.writerow(["date","value","variance_size","variance_mle","num_seqs","times",
+        writer.writerow(["date","t_sd","value","variance_size","variance_mle","num_seqs","times",
                          "num_days_per_bin","haplotypes", "num_mut"])
         for i in range(len(thetas)):
-            writer.writerow([mean_header_bin[i], thetas[i], variance_size[i], variance[i], num_seqs[i], times[i],
+            writer.writerow([mean_header_bin[i], t_sd_bin[i], thetas[i], variance_size[i], variance[i], num_seqs[i], times[i],
                              num_days_per_bin[i], origins[i], num_mut[i]])
     print(" Done.\n")
     # Write to merged bins dataset
@@ -166,7 +175,8 @@ for folder in binnings:
                                     num_days_per_bin[i],
                                     folder,
                                     origins[i],
-                                    num_mut[i]))
+                                    num_mut[i],
+                                    t_sd_bin[i],))
 
 print('-'*80)
 print(" Making the final results table...")
@@ -181,7 +191,7 @@ with open(table_path, 'w+', newline='') as csvfile:
     writer = csv.writer(csvfile, delimiter='\t',
                             quotechar='|', quoting=csv.QUOTE_MINIMAL)
     writer.writerow(["t","value","variance","meanBinDate","sampleSize",
-                     "daysPerBin", "binning", "haplotypes", "numMut"])
+                     "daysPerBin", "binning", "haplotypes", "numMut","t_sd"])
     for i in range(len(times)):
         # If bin size==1/variance is bigger or equal to min_bin_size
         # if maxsize, minsize satisfied
@@ -194,6 +204,7 @@ with open(table_path, 'w+', newline='') as csvfile:
                             bin_merging_data_[i][6],
                             bin_merging_data_[i][7],
                             bin_merging_data_[i][8],
-                            bin_merging_data_[i][9]])
+                            bin_merging_data_[i][9],
+                            bin_merging_data_[i][10]])
 
 print(" Done.")
