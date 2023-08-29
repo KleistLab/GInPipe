@@ -8,14 +8,10 @@ basefilename = os.path.basename(config["samples"])[:-6]
 
 report: "report/workflow.rst"
 
-if config["R0"]:
-	rule all:
-		input:
-			"results/Re/Re_"+config["group"]+".csv"
-else:
-	rule all:
-		input:
-			"results/incidence/incidence_"+config["group"]+".csv"
+
+rule all:
+	input:
+		"results/incidence/incidence_"+config["group"]+".csv"
 
 def get_reported_cases_params():
     rep_cases = config["reported_cases"]
@@ -210,15 +206,3 @@ rule interpolation:
 		"Rscript {workflow.basedir}/scripts/incidence/computeSmoothValues.R {input.infile} \
 			{params.group} {output.result} {params.rep_cases[0]} '{params.rep_cases[1]}' \
 			{params.rep_cases[2]} {params.rep_cases[3]} {params.rep_cases[4]}"
-
-if config["R0"]:
-	rule re:
-		input:
-			infile = "results/incidence/incidence_"+config["group"]+".csv"
-		output:
-			outfile = "results/Re/Re_"+config["group"]+".csv"
-		conda:
-			"env/env.yml"
-		shell:
-			"Rscript {workflow.basedir}/scripts/incidence/computeRe.R {input.infile} \
-			{output.outfile}"

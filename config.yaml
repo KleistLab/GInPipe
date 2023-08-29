@@ -23,7 +23,5 @@ max_days_span: 21
 freq_cutoff: 2
 # 10. Sample name for plot grouping, e.g. country or data set name
 group: "country"
-# 11. Calculate R0! y/n
-R0: y
-# 12. Use a masking file (VCF)
+# 11. Use a masking file (VCF)
 masking: "path/to/vcf"
