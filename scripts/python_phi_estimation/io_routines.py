@@ -5,26 +5,38 @@ import datetime
 
 def read_table(file, removeNA=False):
 	file_path = Path(file)
-	try:
-		if not file_path.exists():
-			raise IOError("Error while reading csv file. File does not exist: \n" + str(file_path))
-		table = pd.read_csv(file_path)
-		if(removeNA):
-			table = table.dropna()
-	except Exception as e:
-		print(e)
-	else:
-		return(table)
+	#try:
+	if not file_path.exists():
+		raise IOError("Error while reading csv file. File does not exist: \n" + str(file_path))
+	table = pd.read_csv(file_path)
+	if(removeNA):
+		table = table.dropna()
+	#except Exception as e:
+	#	print(e)
+	#else:
+	return(table)
 
 def write_table(table, file):
 	file_path = Path(file)
-	try:
-		if table.empty():
-			raise IOError("Error while writing table " + str(file_path) + ".\nTable does not exist.")
-		file_path.parent.mkdir(parents=True, exist_ok=True)  
-		table.to_csv(file, index=False, sep=",", header=True)
-	except Exception as e:
-		print(e)
+	#try:
+	if table.empty:
+		raise IOError("Error while writing table " + str(file_path) + ".\nTable does not exist.")
+	file_path.parent.mkdir(parents=True, exist_ok=True)  
+	table.to_csv(file, index=False, sep=",", header=True)
+	#except Exception as e:
+	#	print(e)
+
+def write_phi_per_bin_table(phi_per_bin_table, path):
+  file =  Path(path / "phi_estimates_per_bin.csv")
+  print("Write phi estimates per bin " + str(file))
+  write_table(x = phi_per_bin_table,
+              file = file)
+
+def write_sequence_info_per_day_table(seq_info_perDay_table, path):
+  file =  Path(path / "sequence_stats_per_day.csv")
+  print("Write sequence info table " + str(file))
+  write_table(x = seq_info_perDay_table, file = file)
+
 	
 def read_and_extract_snv_file(snv_file):
 	snv_file_path = Path(snv_file)
@@ -56,8 +68,12 @@ def read_and_extract_snv_file(snv_file):
 		seq_info_short_table = seq_info_table.rename(columns = {"dna_profile": "snvs"})[['date', 'snvs']]
 		seq_info_short_table['t'] = (seq_info_table["date"].apply(datetime.date.fromisoformat) - minDate).dt.days
 		seq_info_short_table = seq_info_short_table.sort_values("t")
-
+		seq_info_short_table = seq_info_short_table.reset_index()
 	except Exception as e:
 		print(e)
 	else:
 	  return(seq_info_short_table)
+
+#TODO read in vcf file
+
+#TODO read in reporte cases
