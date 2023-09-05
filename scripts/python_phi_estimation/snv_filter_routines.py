@@ -29,19 +29,13 @@ def filter_snvs(snvs_per_seq, freq_threshold=2, masked_positions=[], remove_inde
     print("... and deletions")
     snvs_lists = snvs_lists.apply(filter_indels)
 
-  
   # extract SNV positions
-  # 34 sec mit DESH 2021 aufm HPC and 44 sec aufm Mac
-  #tic("extract SNV positions ")
-  ## 
   print("Extract SNV positions")
   snv_pos_list = snvs_lists.apply(lambda snvs: list(map(extract_position, snvs)))
   
   # merge all lists of positions and count positions
-  #tic("count positions with table")
   print("Count positions")
   pos_counts = snv_pos_list.explode().value_counts(sort=False)
-  #toc()
 
 
   #filter positions which don't exceed the given threshold or which are masked
@@ -57,8 +51,6 @@ def filter_snvs(snvs_per_seq, freq_threshold=2, masked_positions=[], remove_inde
 
   print("...Filtering out " + str(len(pos_filtered)) + " positions")
 
-  # toc()
-  # tic("filter the actual table")
   # filter the actual snv table: check per seuqence if the snv is filtered or not with function compress
   print("Filter and recreate the actual SNV table")
   df = pd.DataFrame({'s': snvs_lists, 'p':pos_counts_filtered})
@@ -67,7 +59,7 @@ def filter_snvs(snvs_per_seq, freq_threshold=2, masked_positions=[], remove_inde
   #snvs_filtered = snvs_lists.reset_index().apply(lambda x: (list(compress(snvs_lists[x.index], pos_counts_filtered[x.index])))).snvs
   # create string again as haplotype
   #snvs_filtered = snvs_filtered.apply(lambda x: ' '.join(x))
-  #toc()
+
   return snvs_filtered 
 
 
@@ -97,6 +89,7 @@ def filter_insertions(snv_list, all=False):
   p = re.compile("^0[A-Za-z]+$")
   return list(filter(lambda x: not p.match(x), snv_list))
 
+### SNV mask parsing
 def get_positions_from_string(pos_str):
   pos_intervals=pos_str.split(",")
   return list(chain.from_iterable(map(interval_to_range,pos_intervals)))
