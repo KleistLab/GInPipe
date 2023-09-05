@@ -29,13 +29,13 @@ def write_table(table, file):
 def write_phi_per_bin_table(phi_per_bin_table, path):
   file =  Path(path / "phi_estimates_per_bin.csv")
   print("Write phi estimates per bin " + str(file))
-  write_table(x = phi_per_bin_table,
+  write_table(phi_per_bin_table,
               file = file)
 
 def write_sequence_info_per_day_table(seq_info_perDay_table, path):
   file =  Path(path / "sequence_stats_per_day.csv")
   print("Write sequence info table " + str(file))
-  write_table(x = seq_info_perDay_table, file = file)
+  write_table(seq_info_perDay_table, file = file)
 
 	
 def read_and_extract_snv_file(snv_file):
