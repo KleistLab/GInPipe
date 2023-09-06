@@ -26,14 +26,13 @@ def write_table(table, file):
 	#except Exception as e:
 	#	print(e)
 
-def write_phi_per_bin_table(phi_per_bin_table, path):
-  file =  Path(path / "phi_estimates_per_bin.csv")
+def write_phi_per_bin_table(phi_per_bin_table, path, suffix=""):
+  file = Path().joinpath(path +  "/phi_estimates_per_bin" + suffix + ".csv")
   print("Write phi estimates per bin " + str(file))
-  write_table(phi_per_bin_table,
-              file = file)
+  write_table(phi_per_bin_table, file = file)
 
-def write_sequence_info_per_day_table(seq_info_perDay_table, path):
-  file =  Path(path / "sequence_stats_per_day.csv")
+def write_sequence_info_per_day_table(seq_info_perDay_table, path, suffix=""):
+  file = Path().joinpath(path +  "/sequence_stats_per_day" + suffix + ".csv")
   print("Write sequence info table " + str(file))
   write_table(seq_info_perDay_table, file = file)
 
