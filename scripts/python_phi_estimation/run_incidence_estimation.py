@@ -26,17 +26,25 @@ import pandas as pd
 import io_routines as io
 import snv_filter_routines as filt
 import binning_routines as bin
+import seq_info_routines as si
 
 import importlib
-importlib.reload(bin)
+importlib.reload(io)
 
 # Output path
-out_dir = Path(snakemake.output[0]).parent
-result_path = Path(os.getcwd()) / "results"
+result_path =  "results" # Path(snakemake.output[0]).parent
+print(result_path)
+#print(os.getcwd())
+result_path =  str(Path(snakemake.output[0]).parent) #os.getcwd() + "/results" #Path(os.getcwd()) / "results"
 #result_path=Path("/Users/msmith/Documents/RKI/DAKI/test_results_ginSonar")
 
+#suffix for the file name
+suffix = ""
+if snakemake.params.name:
+    suffix = "_" + snakemake.params.name
+
 #File containing table with Single nucleotide variants (snv) per sequence and date
-snv_file = snakemake.params.snv_file
+snv_file = snakemake.input.snv_file
 #snv_file = "/Users/msmith/Documents/RKI/DAKI/GInPipe_HiddenCases/tools/ginpipe_covsonar/data/covSonar_accessions_Germany_2021.csv"
 
 # Grouping variable - suffix for all files
@@ -48,7 +56,7 @@ freq_cutoff = snakemake.params.cutoff
 
 # Masking parameters
 masking_file = snakemake.params.vcf_file
-masked_positions_str = snakemake.params.masked_pos
+masked_positions_str = snakemake.params.masked_positions
 #masked_positions_str = "1-10,29700-30000"
 
 
@@ -58,10 +66,10 @@ seq_per_bin = snakemake.params.seq_per_bin
 #days_per_bin = [7,14]
 #seq_per_bin = [1000, 2000, 5000]
 
-# Filtering and transformation parameters
-min_bin_size = snakemake.params.min_bin_size
-min_days_span = snakemake.params.min_days_span
-max_days_span = snakemake.params.max_days_span
+# Filtering and transformation parameters TODO ins smoothing routine
+#min_bin_size = snakemake.params.min_bin_size
+#min_days_span = snakemake.params.min_days_span
+#max_days_span = snakemake.params.max_days_span
 
 
 
@@ -72,7 +80,7 @@ print("Read snv file " + snv_file + "\n")
 seq_info_short_table = io.read_and_extract_snv_file(snv_file)
 
 # read masked positions from vcf file or positions flag if present
-if vcf_file:
+if masking_file:
     print('*'*80)
     print("Read masked positions " + masking_file+ "\n")
    # masked_positions = io.read_vcf_and_extract_masked_positions(masking_file)
@@ -95,19 +103,19 @@ seq_info_short_table['snvs'] = filt.filter_snvs(seq_info_short_table['snvs'],
 
 # binning
 print('*'*80)
-print("Binning and phi calculation\n")
+print("***  Binning and phi calculation\n")
 phi_per_bin_table = bin.calculate_phi_per_bin(seq_info_short_table,
                           days_per_bin=days_per_bin,
                           seqs_per_bin=seq_per_bin)
 
+# sequence statistics
+print('*'*80)
+print("*** Infer sequence statistics per day \n")
 # TODO get statitistics of the rawdata
-#seq_info_perDay_table <- get_seq_info_per_day(seq_info_short_table)
+seq_info_perDay_table = si.get_seq_info_per_day(seq_info_short_table)
 
 # write tables
 print('*'*80)
-print("Write result table into "+str(result_path)+"\n")
-print('*'*80)
-
-io.write_phi_per_bin_table(phi_per_bin_table, path = result_path)
-#TODO
-#write_sequence_info_per_day_table(seq_info_perDay_table, path = result_path)
+print("***  Write result tables into "+ result_path +"\n")
+io.write_phi_per_bin_table(phi_per_bin_table, path = result_path, suffix=suffix)
+io.write_sequence_info_per_day_table(seq_info_perDay_table, path = result_path, suffix=suffix)
