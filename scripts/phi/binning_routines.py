@@ -3,10 +3,6 @@ import pandas as pd
 from itertools import chain
 from scipy import optimize
 
-#TODO Dokumentation überarbeiten, optims raus
-#TODO WEG
-#import io_routines as io
-
 
 def get_phi(x, n_haplo, n_mut):
   """Objective function to be minimised inferring the optimal value for phi.
