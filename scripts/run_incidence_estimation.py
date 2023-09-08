@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Main call to run binning and phi estimation. TODO fertig beschreiben
-#'
+Main call to run binning and phi estimation. 
+Writing a table containing the estimated phi value for each bin and sequence statistics per days.
+TODO fertig beschreiben/anpassen
 #' @param snv_file File containing a table in covSonar-output.... 
 #' I.e. the sequences are represented as string of single nucleotide variants (SNVs) seperated by a blank, 
 #' and a date is given in the format yyyy-mm-dd.
@@ -11,8 +12,8 @@ Main call to run binning and phi estimation. TODO fertig beschreiben
 #' @param masked_positions (optional) Vector containing positions which should be masked/filtered out for the genotyping.
 #' @param days_per_bin Creating consecutive sequence bins spanning the given number of days.
 #' @param seqs_per_bin Creating consecutive sequence bins containing the given number of sequences.
-#' @param result_path (optional) 
-#' @return a table containing the estimate phi value for each bin.
+#' @param result_path(optional)  
+#' 
 """
 
 import os
@@ -23,19 +24,19 @@ import pandas as pd
 #import datetime
 #import random
 
-import io_routines as io
-import snv_filter_routines as filt
-import binning_routines as bin
-import seq_info_routines as si
+import utils.io_routines as io
+import phi.snv_filter_routines as filt
+import phi.binning_routines as bin
+import phi.seq_info_routines as si
+import sys
 
-import importlib
-importlib.reload(io)
+# write output and errors to logfile
+#with open(snakemake.log[0], "w") as f:
+#    sys.stderr = sys.stdout = f
+
 
 # Output path
-result_path =  "results" # Path(snakemake.output[0]).parent
-print(result_path)
-#print(os.getcwd())
-result_path =  str(Path(snakemake.output[0]).parent) #os.getcwd() + "/results" #Path(os.getcwd()) / "results"
+result_path =  str(Path(snakemake.output[0]).parent) 
 #result_path=Path("/Users/msmith/Documents/RKI/DAKI/test_results_ginSonar")
 
 #suffix for the file name
@@ -74,27 +75,29 @@ seq_per_bin = snakemake.params.seq_per_bin
 
 
 # read snv file
-print('*'*80)
+print('*'*80 + "\n")
 print("Read snv file " + snv_file + "\n")
-
+print('*'*80 + "\n")
 seq_info_short_table = io.read_and_extract_snv_file(snv_file)
 
 # read masked positions from vcf file or positions flag if present
 if masking_file:
-    print('*'*80)
+    print('*'*80 + "\n")
     print("Read masked positions " + masking_file+ "\n")
+    print('*'*80 + "\n")
    # masked_positions = io.read_vcf_and_extract_masked_positions(masking_file)
 
 masked_positions = []
 if masked_positions_str:
-    print('*'*80)
+    print('*'*80 + "\n")
     print("Parse masked positions\n")
+    print('*'*80 + "\n")
     masked_positions = filt.get_positions_from_string(masked_positions_str)
 
 # filtering
-print('*'*80)
+print('*'*80 + "\n")
 print("Filtering SNV positions\n")
-
+print('*'*80 + "\n")
 #seq_info_short_table['snvs_unfiltered'] = seq_info_short_table['snvs']
 seq_info_short_table['snvs'] = filt.filter_snvs(seq_info_short_table['snvs'],
                  freq_threshold=freq_cutoff,   
@@ -102,20 +105,22 @@ seq_info_short_table['snvs'] = filt.filter_snvs(seq_info_short_table['snvs'],
                  remove_indels=False, remove_all_insertions=True)
 
 # binning
-print('*'*80)
+print('*'*80 + "\n")
 print("***  Binning and phi calculation\n")
+print('*'*80 + "\n")
 phi_per_bin_table = bin.calculate_phi_per_bin(seq_info_short_table,
                           days_per_bin=days_per_bin,
                           seqs_per_bin=seq_per_bin)
 
 # sequence statistics
-print('*'*80)
+print('*'*80 + "\n")
 print("*** Infer sequence statistics per day \n")
-# TODO get statitistics of the rawdata
+print('*'*80 + "\n")
 seq_info_perDay_table = si.get_seq_info_per_day(seq_info_short_table)
 
 # write tables
-print('*'*80)
+print('*'*80 + "\n")
 print("***  Write result tables into "+ result_path +"\n")
+print('*'*80 + "\n")
 io.write_phi_per_bin_table(phi_per_bin_table, path = result_path, suffix=suffix)
 io.write_sequence_info_per_day_table(seq_info_perDay_table, path = result_path, suffix=suffix)
