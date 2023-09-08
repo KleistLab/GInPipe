@@ -44,7 +44,7 @@ def _(days:list, date_str:str):
 #' @param date_str date of the "t"th day
 #' @return date at day zero
 #' @export
-def get_date_zero(t: int|float, date_str: str):
+def get_date_zero(t: int, date_str: str):
 	return add_days_to_date(-t, date_str)
 	
 
