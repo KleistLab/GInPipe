@@ -12,6 +12,7 @@ from pathlib import Path
 basefilename = Path(config["samples"]).stem
 filetype = Path(config["samples"]).suffix
 
+# Check if reported cases are given (if not, pipeline will terminate earlier)
 rep_cases = config["reported_cases"]
 rc = True
 print(rep_cases)
@@ -198,25 +199,25 @@ rule run_incidence_estimation:
 	log:
 		"logs/binning_and_estimation.log"
 	script:
-		"scripts/python_phi_estimation/run_incidence_estimation.py"
+		"scripts/run_incidence_estimation.py"
 
 rule smoothing:
 	input:
-		infile = "results/phi_estimates/phi_estimates_per_bin_" + name + ".csv"
+		phi_table = "results/phi_estimates/phi_estimates_per_bin_" + name + ".csv"
 	params:
-		rep_cases = rep_cases,
 		min_bin_size = config["min_bin_size"],
 		min_days_span = config["min_days_span"],
 		max_days_span = config["max_days_span"],
-		name = name
+		smoothing_window = 7
 	conda:
 		"env/env.yml"
 	log:
 		"logs/smoothing.log"
 	output:
-		result = "results/phi_estimates/smoothed_phi_estimates_" + name + ".csv"
+		smoothed_phi = "results/phi_estimates/smoothed_phi_estimates_" + name + ".csv"
 	script:
-			"scripts/python_phi_estimation/smooth_phi_estimates.py"
+			"scripts/smooth_phi_estimates.py"
+
 
 # shell:
 # 	"Rscript {workflow.basedir}/scripts/incidence/computeSmoothValues.R {input.infile} \
@@ -226,16 +227,22 @@ rule smoothing:
 if rc:
 	rule minimal_incidence:
 		input:
-			phi = "results/phi_estimates/smoothed_phi_estimates_" + name + ".csv"
+			smoothed_phi = "results/phi_estimates/smoothed_phi_estimates_" + name + ".csv"
 		params:
-			rep_cases = rep_cases,
-			smoothing_width = 7,
-			name = name
+			rep_cases = rep_cases[0],
+			sep = rep_cases[1],
+			col_date = rep_cases[2],
+			col_case = rep_cases[3],
+			date_format = rep_cases[4],
+			smoothing_window_phi = config["smoothing_window_phi"],
+			smoothing_window_rep = config["smoothing_window_rep"],
+			from_date = config["from_date"],
+			to_date = config["to_date"]
 		conda:
 			"env/env.yml"
 		log:
 			"logs/minimal_incidence.log"
 		output:
-			result = "results/incidence/minimal_incidence_" + name + ".csv"
+			mi_table = "results/incidence/minimal_incidence_" + name + ".csv"
 		script:
-			"scripts/python_case_ascertainment/calculate_case_ascertainment.py"
+			"scripts/calculate_case_ascertainment.py"
