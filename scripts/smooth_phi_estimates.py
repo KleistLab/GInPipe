@@ -56,14 +56,12 @@ except ValueError:
 ### Filtering and Smoothing
 ##################################################
 
-print("*"*80)
-print("*** Smooth phi estimates with window " + str(smoothing_window))
-print("*"*80)
-
+print("*"*80+"\n")
+print("*** Smooth phi estimates with window " + str(smoothing_window)+"\n")
+print("*"*80+"\n")
 phi_table = io.read_table(phi_table_file)
-
 # filter bins 
-subPhi_table = phi_table[(phi_table["daysPerBin"] >= min_days_span) & \
+phi_table = phi_table[(phi_table["daysPerBin"] >= min_days_span) & \
                                ((not max_days_span) | (phi_table["daysPerBin"] <= max_days_span)) & \
                                (phi_table["sampleSize"] >= min_bin_size)]
 
