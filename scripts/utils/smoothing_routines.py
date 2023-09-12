@@ -51,11 +51,14 @@ def smooth_values(x, y, bandwidth):
 
 def smooth_phi_estimates(phiPerBin_table, smoothingBandwidth=7):
 
-	date_zero = dr.get_date_zero(phiPerBin_table['t'].iloc[0], phiPerBin_table['date'].iloc[0])
+    #sort by date
+    phiPerBin_table = phiPerBin_table.sort_values(by=['t'])
 
-	smoothedPhi_table = smooth_values(x=phiPerBin_table['t'], y=phiPerBin_table['phi'], bandwidth=smoothingBandwidth)
-
-	return pd.DataFrame({'t': smoothedPhi_table.x.astype(int),
+    date_zero = dr.get_date_zero(phiPerBin_table['t'].iloc[0], phiPerBin_table['date'].iloc[0])
+    
+    smoothedPhi_table = smooth_values(x=phiPerBin_table['t'], y=phiPerBin_table['phi'], bandwidth=smoothingBandwidth)
+    
+    return pd.DataFrame({'t': smoothedPhi_table.x.astype(int),
 		'date': dr.add_days_to_date(smoothedPhi_table.x.to_list(), date_zero),
 		'phi_smoothed': smoothedPhi_table.y_smoothed})
 		#'phi_lower': smoothedPhi_table.f_lower,
