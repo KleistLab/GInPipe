@@ -13,12 +13,12 @@ def read_table(file, removeNA=False, sep=","):
 		table = table.dropna()
 	return(table)
 
-def write_table(table, file):
+def write_table(table, file, sep=","):
 	file_path = Path(file)
 	if table.empty:
 		raise IOError("Error while writing table " + str(file_path) + ".\nTable does not exist.")
 	file_path.parent.mkdir(parents=True, exist_ok=True)  
-	table.to_csv(file, index=False, sep=",", header=True)
+	table.to_csv(file, index=False, sep=sep, header=True)
 
 def write_phi_per_bin_table(phi_per_bin_table, path, suffix=""):
   file = Path().joinpath(path +  "/phi_estimates_per_bin" + suffix + ".csv")
