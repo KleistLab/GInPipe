@@ -1,11 +1,7 @@
 #bam_to_fingerprints.py
 
 """
-Tranlsate CIGAR strings to fingerprint strings.
-
-Created on Mon Jul 13 15:05:41 2020
-
-@author: Maria Trofimova
+Tranlsate CIGAR strings table of dates and SNVs.
 """
 
 
@@ -13,15 +9,19 @@ import pysam
 import random
 import numpy as np
 from Bio import SeqIO
+import pandas as pd
+import re
+from warnings import warn
+import datetime
 
 class SAMtoFP:
     """
     SAMtoFP class.
 
-    Tranlsate CIGAR strings to fingerprint strings  
+    Tranlsate CIGAR strings to SNV strings  
     """
 
-    def __init__(self, filename, reffile, refname):
+    def __init__(self, filename, reffile):
         """
         Turn CIGAR strings in SAM files into sequence fingerprints.
 
@@ -29,12 +29,20 @@ class SAMtoFP:
         :type filename: str
         :param reffile: path to reference FASTA file
         :type reffile: str
-        :param refname: name of reference sequence
-        :type refname: str
         """
         self.filename = filename
         self.reference = reffile
-        self.ref_name = refname
+        self.ref_name = self.get_ref_name(reffile) 
+
+    def get_ref_name(self, reffile):
+        with open(str(reffile), "r") as file:
+            header = file.readline()
+            refname = header.strip(">")
+            refname_full = refname.strip("\n")
+            split_header = refname_full.split()
+            #Minimap2 header
+            refname = split_header[0]
+            return refname
 
     def _ambiguous_dict(self, base, refbase):
         """
@@ -76,12 +84,19 @@ class SAMtoFP:
 
         return variant
 
+    def _date_from_header(self, name):
+        
+        date_format = r"[|][\d]{4}-[\d]{2}-[\d]{2}"
+        dt = re.search(date_format, name)
+        if dt:
+            dt = dt[0][1:]
+        return dt
 
-    def _cigar_to_fp(self, seq, cigar, start, name):
+    def _cigar_to_fp(self, seq, cigar, start):
         """
         Translate CIGAR strings to sequence fingerprints in format.
 
-            Position>Mutant_base
+            Ref_basePositionMutant_base (e.g. T33G)
             CIGAR string signatures are taken in form of Pysam cigartuple in format:
             (operation,length)
         Key list:
@@ -102,8 +117,6 @@ class SAMtoFP:
         :type cigar: list
         :param start: position on query where the query starts
         :type start: int
-        :param name: name of query sequence
-        :type name: str
         :returns mutantsstrbase: fingerprints per sequence as one string
         :rtype: list
         :returns mutants_pos_list: fingerprints per sequence as list of strings
@@ -117,16 +130,18 @@ class SAMtoFP:
         ref_seq = ''
         for fasta in ref_fasta:
             ref_seq = str(fasta.seq)
-        lref = len(ref_seq)
+        #lref = len(ref_seq)
         # Counter reference
         counter = start
         # Counter query
         counter_q = 0
         # Mutants list
-        mutants_base = []
+        #mutants_base = []
         # Mutants count
-        mutants_pos = 0
-        mutants_pairs_list = []
+        #mutants_pos = 0
+        #mutants_pairs_list = []
+
+        snv_list = []
 
         # Ambiguous bases list
         amblist = ['W', 'S', 'M', 'K', 'R', 'Y', 'B', 'D', 'H', 'V', 'N', 'Z']
@@ -168,41 +183,33 @@ class SAMtoFP:
                             if bcall==ref_seq[counter]:
                                 pass
                             else:
-                                mutants_base.append(alt_rec+'>'+bcall)
-                                mutants_pairs_list.append((counter+1,bcall))
-                                mutants_pos += 1
+                                snv_list.append(ref_seq[counter]+alt_rec +bcall)
+                                #mutants_base.append(alt_rec+'>'+bcall)
+                                #mutants_pairs_list.append((counter+1,bcall))
+                                #mutants_pos += 1
                         else:
-                            mutants_base.append(alt_rec+'>'+str(alt_base))
-                            mutants_pairs_list.append((counter+1,str(alt_base)))
-                            mutants_pos += 1
+                            snv_list.append(ref_seq[counter]+alt_rec +str(alt_base))
+                            #mutants_base.append(alt_rec+'>'+str(alt_base))
+                            #mutants_pairs_list.append((counter+1,str(alt_base)))
+                            #mutants_pos += 1
                     counter += 1
                     counter_q += 1
         # Merge mutant fingerprintts to one string with positions separated by "-"
-        mutantsstrbase = ''
-        if mutants_base!=[]:
-            mutantsstrbase = "-".join(mutants_base)
+        snv_str = ''
+        if snv_list!=[]:
+            snv_str = " ".join(snv_list)
 
-        return mutantsstrbase, lref, mutants_pairs_list
+        return snv_str
+        #return mutantsstrbase, lref, mutants_pairs_list
+    
 
-
-    def write_fp(self):
+    def get_snv_table(self):
         """
-        Write sequence fingerprints from CIGAR format in BAM file.
-
-        :returns sequences_list_base: fingerprints per bin per sequence as one string
-        :returns sequence_pos_list: fingerprints per bin per sequence as list of strings
-        :rtype: list
-        :returns sequence_pair_list: fingerprints per bin per sequence as pairs of
-            sequence positions and mutant bases
-        :rtype: list
-        :returns lref: length of reference sequence
-        :rtype: int
+        TODO describe
         """
-        # Write positions with mutant base as string
-        sequences_list_base = []
-        # Write positions with mutant base as pair
-        sequence_pair_list = []
 
+        dates= []
+        snvs = []
         file = pysam.AlignmentFile(self.filename)
 
         for read in file.fetch(self.ref_name):
@@ -212,11 +219,56 @@ class SAMtoFP:
             start = start_[0]
             # Trim with cigar string
             cigar = read.cigartuples
+            date = self._date_from_header(name)
+            snv_str = self._cigar_to_fp(seq, cigar, start)
+            try:
+                datetime.date.fromisoformat(date)
+            except ValueError:
+                warn("Skipping sequence " + name + ".\nNo date with format yyyy-mm-dd found in header.\n")
+            else:
+                dates.append(date)
+                snvs.append(snv_str)
+        
+        # sort table by date
+        snv_table = pd.DataFrame({'date': dates,
+                                'dna_profile': snvs})
 
-            mutants_string, lref, mutants_pairs_list = self._cigar_to_fp(seq, cigar, start, name)
+        snv_table = snv_table.sort_values(by="date")
+        return snv_table
 
-            sequences_list_base.append((name,mutants_string))
-            sequence_pair_list.append(mutants_pairs_list)
+    #TODO weg
+    # def write_fp(self):
+    #     """
+    #     Write sequence fingerprints from CIGAR format in BAM file.
+
+    #     :returns sequences_list_base: fingerprints per bin per sequence as one string
+    #     :returns sequence_pos_list: fingerprints per bin per sequence as list of strings
+    #     :rtype: list
+    #     :returns sequence_pair_list: fingerprints per bin per sequence as pairs of
+    #         sequence positions and mutant bases
+    #     :rtype: list
+    #     :returns lref: length of reference sequence
+    #     :rtype: int
+    #     """
+    #     # Write positions with mutant base as string
+    #     sequences_list_base = []
+    #     # Write positions with mutant base as pair
+    #     sequence_pair_list = []
+
+    #     file = pysam.AlignmentFile(self.filename)
+
+    #     for read in file.fetch(self.ref_name):
+    #         name = read.query_name
+    #         seq = str(read.query_sequence)
+    #         start_ = read.get_reference_positions()
+    #         start = start_[0]
+    #         # Trim with cigar string
+    #         cigar = read.cigartuples
+
+    #         mutants_string, lref, mutants_pairs_list = self._cigar_to_fp(seq, cigar, start, name)
+
+    #         sequences_list_base.append((name,mutants_string))
+    #         sequence_pair_list.append(mutants_pairs_list)
 
 
-        return sequences_list_base, lref, sequence_pair_list
+    #     return sequences_list_base, lref, sequence_pair_list
