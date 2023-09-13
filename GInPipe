@@ -45,8 +45,8 @@ rule all:
         get_input()
 
 #### Optional preprocessing of sequences files in fasta format
+print(filetype)
 if filetype == '.fasta':
-	
 	# If no SNV file is given, it need to be created
 	snv_file = "results/snv/" + name + ".csv"
 
@@ -54,19 +54,19 @@ if filetype == '.fasta':
 		input:
 			config["samples"]
 		output:
-			expand("results/raw/{sample}_fixed1.fasta", sample=basefilename)
+			temp(expand("results/raw/{sample}_fixed1.fasta", sample=name))
 		conda:
 			"env/env.yml"
 		log:
-			expand("logs/ws_{sample}.log", sample=basefilename)
+			expand("logs/ws_{sample}.log", sample=name)
 		shell:
 			"(reformat.sh in={input} out={output} underscore ignorejunk overwrite=true) 2> {log}"
 
 	rule samtools_faidx:
 		input:
-			expand("{reference}", reference=config["consensus"])
+			expand("{reference}", reference=config["reference"])
 		output:
-			expand("{reference}.fai", reference=config["consensus"])
+			temp(expand("{reference}.fai", reference=config["reference"]))
 		log:
 			expand("logs/faidx_{sample}.log",sample=basefilename)
 		shell:
@@ -76,7 +76,7 @@ if filetype == '.fasta':
 		input:
 			"results/raw/{sample}_fixed1.fasta"
 		output:
-			"results/raw/{sample}_fixed12.fasta"
+			temp("results/raw/{sample}_fixed12.fasta")
 		conda:
 			"env/env.yml"
 		log:
@@ -86,34 +86,34 @@ if filetype == '.fasta':
 
 	rule samtools_dict:
 		input:
-			expand("{reference}", reference=config["consensus"])
+			expand("{reference}", reference=config["reference"])
 		output:
-			expand("{reference}.dict", reference=config["consensus"][:-6])
+			temp(expand("{reference}.dict", reference=config["reference"][:-6]))
 		conda:
 			"env/env.yml"
 		log:
-			expand("logs/samtools_dict_{reference}.log",reference=config["consensus"])
+			expand("logs/samtools_dict_{reference}.log",reference=config["reference"])
 		shell:
 			"(samtools dict {input} -o {output}) 2> {log}"
 
 	rule minimap_index_ref:
 		input:
-			expand("{reference}", reference=config["consensus"])
+			expand("{reference}", reference=config["reference"])
 		output:
-			expand("{reference}.mmi", reference=config["consensus"][:-6])
+			temp(expand("{reference}.mmi", reference=config["reference"][:-6]))
 		conda:
 			"env/env.yml"
 		log:
-			expand("logs/minimap_index_{reference}.log",reference=config["consensus"])
+			expand("logs/minimap_index_{reference}.log",reference=config["reference"])
 		shell:
 			"(minimap2 -d {output} {input}) 2> {log}"
 
 	rule minimap:
 		input:
-			ref = expand("{reference}.mmi", reference=config["consensus"][:-6]),
+			ref = expand("{reference}.mmi", reference=config["reference"][:-6]),
 			s = "results/raw/{sample}_fixed12.fasta"
 		output:
-			"results/bam/{sample}.bam"
+			temp("results/bam/{sample}.bam")
 		conda:
 			"env/env.yml"
 		log:
@@ -125,7 +125,7 @@ if filetype == '.fasta':
 		input:
 			"results/bam/{sample}.bam"
 		output:
-			"results/bam/{sample}_flagstat.txt"
+			temp("results/bam/{sample}_flagstat.txt")
 		conda:
 			"env/env.yml"
 		log:
@@ -138,7 +138,7 @@ if filetype == '.fasta':
 			bam = "results/bam/{sample}.bam",
 			stat = "results/bam/{sample}_flagstat.txt"
 		output:
-			"results/bam/{sample}-sorted.bam"
+			temp("results/bam/{sample}-sorted.bam")
 		log:
 			"logs/sort_{sample}.log"
 		conda:
@@ -150,31 +150,23 @@ if filetype == '.fasta':
 		input:
 			"results/bam/{sample}-sorted.bam"
 		output:
-			"results/bam/{sample}-sorted.bam.bai"
+			temp("results/bam/{sample}-sorted.bam.bai")
 		conda:
 			"env/env.yml"
 		log:
 			"logs/index_{sample}.log"
 		shell:
 			"(samtools index {input}) 2> {log}"
-
-	rule samtools_idxstats:
+	
+	rule get_snvs:
 		input:
-			"results/bam/{sample}-sorted.bam"
+			bam="results/bam/"+name+"-sorted.bam",
+			bai="results/bam/"+name+"-sorted.bam.bai",
+			ref=config["reference"]
 		output:
-			"results/bam/{sample}-sorted-stats.txt"
-		conda:
-			"env/env.yml"
-		log:
-			"logs/idxstats_{sample}.log"
-		shell:
-			"(samtools idxstats {input} > {output}) 2> {log}"
-
-	rule bam_to_snv:
-		input:
-			bam="results/bam/{sample}-sorted.bam"
-		output:
-			snv=snv_file
+			snv = snv_file
+		script:
+			"scripts/bam_to_snv.py"
 
 
 
@@ -192,14 +184,13 @@ rule run_incidence_estimation:
 		days_per_bin = config["days_per_bin"],
 		cutoff = config["freq_cutoff"],
 		name = name,
-		masked_positions = config["masking"],
-		vcf_file = config["vcf_file"]
+		masked_positions = config["masking"]
 	conda:
 		"env/env.yml"
 	log:
 		"logs/binning_and_estimation.log"
 	script:
-		"scripts/run_incidence_estimation.py"
+		"scripts/run_incidence_estimation.py" #2> {log}
 
 rule smoothing:
 	input:
@@ -208,21 +199,16 @@ rule smoothing:
 		min_bin_size = config["min_bin_size"],
 		min_days_span = config["min_days_span"],
 		max_days_span = config["max_days_span"],
-		smoothing_window = 7
+		smoothing_bandwidth = config["smoothing_bandwidth_phi"],
+		name = name
 	conda:
 		"env/env.yml"
 	log:
-		"logs/smoothing.log"
+		expand("logs/smoothing.log")
 	output:
 		smoothed_phi = "results/phi_estimates/smoothed_phi_estimates_" + name + ".csv"
 	script:
-			"scripts/smooth_phi_estimates.py"
-
-
-# shell:
-# 	"Rscript {workflow.basedir}/scripts/incidence/computeSmoothValues.R {input.infile} \
-# 		{params.group} {output.result} {params.rep_cases[0]} '{params.rep_cases[1]}' \
-# 		{params.rep_cases[2]} {params.rep_cases[3]} {params.rep_cases[4]}"
+			"scripts/smooth_phi_estimates.py" #2> {log}
 
 if rc:
 	rule minimal_incidence:
@@ -234,10 +220,10 @@ if rc:
 			col_date = rep_cases[2],
 			col_case = rep_cases[3],
 			date_format = rep_cases[4],
-			smoothing_window_phi = config["smoothing_window_phi"],
-			smoothing_window_rep = config["smoothing_window_rep"],
+			smoothing_bandwidth = config["smoothing_bandwidth_mi"],
 			from_date = config["from_date"],
-			to_date = config["to_date"]
+			to_date = config["to_date"],
+			name = name
 		conda:
 			"env/env.yml"
 		log:
@@ -245,4 +231,4 @@ if rc:
 		output:
 			mi_table = "results/incidence/minimal_incidence_" + name + ".csv"
 		script:
-			"scripts/calculate_case_ascertainment.py"
+			"scripts/calculate_case_ascertainment.py" # 2> {log}
