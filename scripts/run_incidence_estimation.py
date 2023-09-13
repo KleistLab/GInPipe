@@ -16,24 +16,12 @@ TODO fertig beschreiben/anpassen
 #' 
 """
 
-import os
 from pathlib import Path
-import numpy as np
-#import csv
-import pandas as pd
-#import datetime
-#import random
 
 import utils.io_routines as io
 import phi.snv_filter_routines as filt
 import phi.binning_routines as bin
 import phi.seq_info_routines as si
-import sys
-
-# write output and errors to logfile
-#with open(snakemake.log[0], "w") as f:
-#    sys.stderr = sys.stdout = f
-
 
 # Output path
 result_path =  str(Path(snakemake.output[0]).parent) 
@@ -56,9 +44,9 @@ freq_cutoff = snakemake.params.cutoff
 #freq_cutoff = 2
 
 # Masking parameters
-masking_file = snakemake.params.vcf_file
+# TODO not suere if we throw this out anyway
+masking_file = "" #snakemake.params.vcf_file
 masked_positions_str = snakemake.params.masked_positions
-#masked_positions_str = "1-10,29700-30000"
 
 
 # Binning parameters
@@ -73,31 +61,26 @@ seq_per_bin = snakemake.params.seq_per_bin
 #max_days_span = snakemake.params.max_days_span
 
 
+print('-'*80 + "\n")
+print("*** Run incidence estimation \nwith SNV file" + snv_file + "\n")
+print('_'*80 + "\n\n")
 
 # read snv file
-print('*'*80 + "\n")
-print("Read snv file " + snv_file + "\n")
-print('*'*80 + "\n")
+print("*** Read snv file " + snv_file + "\n")
 seq_info_short_table = io.read_and_extract_snv_file(snv_file)
 
 # read masked positions from vcf file or positions flag if present
 if masking_file:
-    print('*'*80 + "\n")
-    print("Read masked positions " + masking_file+ "\n")
-    print('*'*80 + "\n")
+    print("*** Read masked positions " + masking_file+ "\n")
    # masked_positions = io.read_vcf_and_extract_masked_positions(masking_file)
 
 masked_positions = []
 if masked_positions_str:
-    print('*'*80 + "\n")
-    print("Parse masked positions\n")
-    print('*'*80 + "\n")
+    print("*** Parse masked positions\n")
     masked_positions = filt.get_positions_from_string(masked_positions_str)
 
 # filtering
-print('*'*80 + "\n")
-print("Filtering SNV positions\n")
-print('*'*80 + "\n")
+print("*** Filtering SNV positions\n")
 #seq_info_short_table['snvs_unfiltered'] = seq_info_short_table['snvs']
 seq_info_short_table['snvs'] = filt.filter_snvs(seq_info_short_table['snvs'],
                  freq_threshold=freq_cutoff,   
@@ -105,22 +88,18 @@ seq_info_short_table['snvs'] = filt.filter_snvs(seq_info_short_table['snvs'],
                  remove_indels=False, remove_all_insertions=True)
 
 # binning
-print('*'*80 + "\n")
 print("***  Binning and phi calculation\n")
-print('*'*80 + "\n")
 phi_per_bin_table = bin.calculate_phi_per_bin(seq_info_short_table,
                           days_per_bin=days_per_bin,
                           seqs_per_bin=seq_per_bin)
 
 # sequence statistics
-print('*'*80 + "\n")
 print("*** Infer sequence statistics per day \n")
-print('*'*80 + "\n")
 seq_info_perDay_table = si.get_seq_info_per_day(seq_info_short_table)
 
-# write tables
-print('*'*80 + "\n")
+##################################################
+### write tables
+##################################################
 print("***  Write result tables into "+ result_path +"\n")
-print('*'*80 + "\n")
 io.write_phi_per_bin_table(phi_per_bin_table, path = result_path, suffix=suffix)
 io.write_sequence_info_per_day_table(seq_info_perDay_table, path = result_path, suffix=suffix)

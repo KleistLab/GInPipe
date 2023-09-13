@@ -2,7 +2,6 @@ from pathlib import Path
 import pandas as pd
 import datetime
 
-
 def read_table(file, removeNA=False, sep=","):
 	file_path = Path(file)
 	#try:
@@ -43,40 +42,36 @@ def write_min_incidence_table(mi_table, path, suffix=""):
 	
 def read_and_extract_snv_file(snv_file):
 	snv_file_path = Path(snv_file)
+	if not snv_file_path.is_file():
+		raise IOError("Error while reading snv file " + str(snv_file_path) + ".\nFile does not exist.")
+	
+	print("Read table\n")
+
+	### read table with SNVs
+	seq_info_table = pd.read_csv(snv_file_path)
+	
+	# turn NaNs into empty string
+	seq_info_table["dna_profile"] = seq_info_table["dna_profile"].fillna("")
+
+	# Assert the needed columns are there (as in covSonar output)
+	required_colnames = {"date", "dna_profile"}
+	if not required_colnames.issubset(seq_info_table.columns):
+		raise ValueError("Error in snv table: \nThe comma-separated snv table requires the columns date and dna_profile!")
+
+	# Assert that that the dates are in the correct format
 	try:
-		if not snv_file_path.is_file():
-			raise IOError("Error while reading snv file " + str(snv_file_path) + ".\nFile does not exist.")
-		
-		print("Read table\n")
+		seq_info_table["date"].apply(datetime.date.fromisoformat) 
+	except ValueError:
+		raise ValueError("Error in date format: Please provide dates in the format yyyy-mm-dd!")
 
-		### read table with SNVs
-		seq_info_table = pd.read_csv(snv_file_path)
-		
-		# Assert the needed columns are there (as in covSonar output)
-		required_colnames = {"date", "dna_profile"}
-		if not required_colnames.issubset(seq_info_table.columns):
-			raise ValueError("Error in snv table: \nThe comma-separated snv table requires the columns date and dna_profile!")
+	
+	### extract important columns 
+	minDate = datetime.date.fromisoformat(min(seq_info_table['date']))
+	print("Extract columns\n")
 
-		# Assert that that the dates are in the correct format
-		try:
-			seq_info_table["date"].apply(datetime.date.fromisoformat) 
-		except ValueError:
-			raise ValueError("Error in date format: Please provide dates in the format yyyy-mm-dd!")
+	seq_info_short_table = seq_info_table.rename(columns = {"dna_profile": "snvs"})[['date', 'snvs']]
+	seq_info_short_table['t'] = pd.to_timedelta(seq_info_table["date"].apply(datetime.date.fromisoformat) - minDate).dt.days
+	seq_info_short_table = seq_info_short_table.sort_values("t")
+	seq_info_short_table = seq_info_short_table.reset_index()
 
-		
-		### extract important columns 
-		minDate = datetime.date.fromisoformat(min(seq_info_table['date']))
-		print("Extract columns\n")
-
-		seq_info_short_table = seq_info_table.rename(columns = {"dna_profile": "snvs"})[['date', 'snvs']]
-		seq_info_short_table['t'] = (seq_info_table["date"].apply(datetime.date.fromisoformat) - minDate).dt.days
-		seq_info_short_table = seq_info_short_table.sort_values("t")
-		seq_info_short_table = seq_info_short_table.reset_index()
-	except Exception as e:
-		print(e)
-	else:
-	  return(seq_info_short_table)
-
-#TODO read in vcf file
-
-#TODO read in reporte cases
+	return(seq_info_short_table)

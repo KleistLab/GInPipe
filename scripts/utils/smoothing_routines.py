@@ -21,7 +21,8 @@ def smooth_values(x, y, bandwidth):
     # => to get the same result as in ksmooth multiply the smoothing parameter with 0.3706506.... (necessary?)
     # Although ksmooth in R is based on Nadaraya--Watson... (also in this file)
     # Local linear regression kernel smoothing.
-
+    #TODO wieder raus nehmen
+    bandwidth = bandwidth*0.3706506
     
 #######
 

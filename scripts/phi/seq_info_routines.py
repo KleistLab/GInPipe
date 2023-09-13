@@ -12,10 +12,13 @@ def get_seq_info_per_day(seq_info_short_table, smoothing_window=7):
   seq_info_perDay_table = seq_info_short_table.groupby(['t', 'date'], as_index=False).agg( 
                           # count sequences
                           sequences = pd.NamedAgg(column ='index', aggfunc='count'),
+                          # count mutant sequences
+                          #TODO
+                          #mut_sequences = pd.NamedAgg(column ='index', aggfunc=lambda s: s[s not ""].),
                           # count number of haplotypes (unique sequences)
                           n_haplos = pd.NamedAgg(column ='snvs', aggfunc=lambda s: s.nunique()),
                           # count number of unique SNVs in all sequences
-                          n_muts = pd.NamedAgg(column ='snvs', aggfunc=(lambda s: s.apply(str.split).explode().nunique())))
+                          n_mut_types = pd.NamedAgg(column ='snvs', aggfunc=(lambda s: s.apply(str.split).explode().nunique())))
 
   #TODO add current/new haplos and mutation? 
 
