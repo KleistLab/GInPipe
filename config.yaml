@@ -1,4 +1,4 @@
-# Full path to samples, wither to raw fasta file (including collection date in header) or covSonar like output in csv format containing date and SNVs
+# Full path to samples, either to raw fasta file (including collection date in header) or covSonar like output in csv format containing date and SNVs
 samples: "path/to/samples"
 # Reported cases table in TSV or CSV format full path with delimiter, date column name,
 # active cases column name, date format
@@ -25,8 +25,6 @@ freq_cutoff: 2
 name: "country"
 # Masking positions, separated by ",". Positions ranges given with pos1-pos2 (optional)
 masking: ""
-# Use a masking file in VCF format. (optional)
-vcf_file: "path/to/vcf"
 # Smoothing bandwidth for phi estimates (default = 7)
 smoothing_window_phi: 7
 # Smoothing bandwidth for reported cases (optional, default = 7)
