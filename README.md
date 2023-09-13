@@ -28,9 +28,16 @@ This workflow was tested on macOS Mojave Version 10.14.4, macOS Catalina Version
 ### Prerequisites
 Some tools have to be installed to run the analysis. We recommend following the steps below to set up the pipeline.
 
-#### Install Conda/Miniconda
+#### Install Mamba/Conda
 
-Conda will manage the dependencies of our pipeline. Instructions can be found here: https://docs.conda.io/projects/conda/en/latest/user-guide/install.
+Mamba and Conda are a package manager that help to manage the package dependencies of our pipeline in environments. Mamba is a faster re-implementation of conda, hence we use it in the following.
+
+Follow the instructions to install Mamba: 
+https://mamba.readthedocs.io/en/latest/mamba-installation.html
+
+
+Alternatively, you can also use Conda. Instructions can be found here: 
+https://docs.conda.io/projects/conda/en/latest/user-guide/install
 
 
 #### Create the working environment
@@ -39,7 +46,7 @@ Create a new environment from the given environment config in [`env.yml`](./env/
 Go to the main folder of the repository and call:
 
 ```
-conda env create -f env/env.yml
+mamba env create -f env/env.yml
 ```
 
 This step may take a few minutes.
@@ -47,10 +54,16 @@ This step may take a few minutes.
 To activate the environment type:
 
 ```
-conda activate GInPipe
+mamba activate GInPipe
+```
+---
+*Note:* In case the conda environments are not found anymore, you may need to add the location to the environment directories.
+
+```
+conda config --append envs_dirs /path/to/conda/envs/
 ```
 
-#### Install Snakemake
+#### Install Snakemake -> WEG?
 
 Snakemake is the workflow management system we use. Install it in your activated environment like this:
 
