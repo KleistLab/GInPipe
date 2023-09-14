@@ -130,7 +130,7 @@ def infer_bin_attributes(subsample_table):
   #phi_2 = optim_2(n_haplo=n_haplos/d, n_mut=num_mut/d)
   #phi_3 = optim_3(n_haplo=n_haplos/d, n_mut=num_mut/d)
 
-  return {'t': bin_t,'t_sd': bin_t_sd,'phi': phi,'sampleSize': N_seq,'num_mut': num_mut,'daysPerBin': d,'haplotypes': n_haplos,'n_mut_types': n_mut_types}
+  return {'t': [bin_t],'t_sd': [bin_t_sd],'phi': [phi],'sampleSize': [N_seq],'num_mut': [num_mut],'daysPerBin': [d],'haplotypes': [n_haplos],'n_mut_types': [n_mut_types]}
 
 
 def binning_equal_days(seq_info_short_table, days):
@@ -151,7 +151,8 @@ def binning_equal_days(seq_info_short_table, days):
     phi_per_bin = infer_bin_attributes(subsample_table)
     phi_per_bin.update({"binning": "eq_days_" + str(days)}) 
 
-    phi_per_bin_table_days = phi_per_bin_table_days.append(phi_per_bin, ignore_index=True) 
+    #phi_per_bin_table_days = phi_per_bin_table_days.append(phi_per_bin, ignore_index=True) 
+    phi_per_bin_table_days = pd.concat([phi_per_bin_table_days,pd.DataFrame(phi_per_bin)], ignore_index=True) 
 
 
     # next bin
@@ -194,7 +195,8 @@ def binning_equal_size(seq_info_short_table, s):
     phi_per_bin = infer_bin_attributes(subsample_table)
     phi_per_bin.update({"binning": "eq_size_" + str(s)}) 
 
-    phi_per_bin_table_size = phi_per_bin_table_size.append(phi_per_bin, ignore_index=True)
+    #phi_per_bin_table_size = phi_per_bin_table_size.append(phi_per_bin, ignore_index=True)
+    phi_per_bin_table_size = pd.concat([phi_per_bin_table_size,pd.DataFrame(phi_per_bin)], ignore_index=True)
   
     from_t=to_t+1
   return phi_per_bin_table_size
@@ -208,10 +210,12 @@ def calculate_phi_per_bin(seq_info_short_table, seqs_per_bin, days_per_bin):
   phi_per_bin_table = pd.DataFrame()
 
   for days in days_per_bin:
-    phi_per_bin_table =  phi_per_bin_table.append(binning_equal_days(seq_info_short_table, days))
-  
+    #phi_per_bin_table =  phi_per_bin_table.append(binning_equal_days(seq_info_short_table, days))
+    phi_per_bin_table =  pd.concat([phi_per_bin_table,binning_equal_days(seq_info_short_table, days)])
+
   for s in seqs_per_bin:
-    phi_per_bin_table = phi_per_bin_table.append(binning_equal_size(seq_info_short_table, s))
+    #phi_per_bin_table = phi_per_bin_table.append(binning_equal_size(seq_info_short_table, s))
+    phi_per_bin_table = pd.concat([phi_per_bin_table,binning_equal_size(seq_info_short_table, s)])
   
   # remove invalid phi estimates
   phi_per_bin_table = phi_per_bin_table.dropna().reset_index(drop=True)
