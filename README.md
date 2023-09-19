@@ -316,7 +316,8 @@ snakemake --snakefile GInPipe --configfile demo/demo_config.yaml -j -d demo
 The result folder is created in the demo folder where you find the output files, as described above. 
 <!-- The incidence plot of the demo sample should look like this: -->
 
-<!-- ![alt text](https://github.com/KleistLab/GInPipe/blob/main/demo/demo_result.png) -->
+The resulting plot for minimum number of infected:
+![alt text](https://github.com/KleistLab/GInPipe/blob/main/min_incidence_demo.png)
 
 [^1]: https://github.com/robert-koch-institut/SARS-CoV-2-Sequenzdaten_aus_Deutschland
 [^2]: https://github.com/robert-koch-institut/SARS-CoV-2-Infektionen_in_Deutschland
