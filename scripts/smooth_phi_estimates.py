@@ -10,11 +10,6 @@ import utils.smoothing_routines as sm
 import utils.io_routines as io
 import plot.plot_routines as pt
 
-#import sys
-# TODO write output and errors to logfile
-#with open(snakemake.log[0], "w") as f:
-#    sys.stderr = sys.stdout = f
-
 ##################################################
 ### Read parameters
 ##################################################
@@ -68,10 +63,9 @@ except ValueError:
 ##################################################
 
 print("-"*80+"\n")
-print("*** Smooth phi estimates with window " + str(smoothing_window)+"\n")
+print("Smooth phi estimates with window " + str(smoothing_window)+"\n")
 print("-"*80+"\n")
-#TODO phi_table_file = "/Users/msmith/Documents/RKI/DAKI/test_results_ginSonar/phi_estimates_per_bin.csv"
-#phi_table_file = "/Users/msmith/Documents/RKI/DAKI/GInPipe_HiddenCases/tools/GInPipe/demo_covSonar/results/phi_estimates/phi_estimates_per_bin_testi.csv"
+
 phi_table = io.read_table(phi_table_file)
 # filter bins 
 phi_table = phi_table[(phi_table["daysPerBin"] >= min_days_span) & \
@@ -86,7 +80,7 @@ smoothed_phi_table = sm.smooth_phi_estimates(phi_table, smoothingBandwidth=smoot
 ##################################################
 
 out_file = result_path + "/plot_smoothed_phi_estimates" + suffix + ".pdf"
-print("*** Plot smoothed phi estimates in " + out_file + "\n")
+print(" * Plot smoothed phi estimates in " + out_file + "\n")
 
 pt.plot_phi_estimates(phi_table, smoothed_phi_table, out_file)
 
@@ -94,6 +88,6 @@ pt.plot_phi_estimates(phi_table, smoothed_phi_table, out_file)
 ### Write output
 ##################################################
 
-print("*** Write smoothed phi table to " + result_file + "\n")
+print(" * Write smoothed phi table to " + result_file + "\n")
 io.write_table(smoothed_phi_table, result_file)
 

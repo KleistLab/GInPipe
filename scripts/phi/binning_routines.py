@@ -126,7 +126,6 @@ def infer_bin_attributes(subsample_table):
   #bin_t_mid = from_t+round((to_t-from_t)/2)
   bin_t_sd = subsample_table['t'].std()
   phi = optim(n_haplo=n_haplos/d, n_mut=num_mut/d)
-  #TODO leave in for now to compare!
   #phi_2 = optim_2(n_haplo=n_haplos/d, n_mut=num_mut/d)
   #phi_3 = optim_3(n_haplo=n_haplos/d, n_mut=num_mut/d)
 
@@ -136,7 +135,7 @@ def infer_bin_attributes(subsample_table):
 def binning_equal_days(seq_info_short_table, days):
   
   #print("*************************\n")
-  print(days , " days\n")
+  print(" ", days , " days\n")
   #print("*************************\n")
   
   phi_per_bin_table_days = pd.DataFrame()
@@ -165,7 +164,7 @@ def binning_equal_days(seq_info_short_table, days):
 def binning_equal_size(seq_info_short_table, s):
   
   #print("*************************\n")
-  print(s , " sequences\n")
+  print(" ", s , " sequences\n")
   #print("*************************\n")
 
   # just in case, re-index the df

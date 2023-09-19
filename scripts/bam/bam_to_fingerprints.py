@@ -184,14 +184,8 @@ class SAMtoFP:
                                 pass
                             else:
                                 snv_list.append(ref_seq[counter]+alt_rec +bcall)
-                                #mutants_base.append(alt_rec+'>'+bcall)
-                                #mutants_pairs_list.append((counter+1,bcall))
-                                #mutants_pos += 1
                         else:
                             snv_list.append(ref_seq[counter]+alt_rec +str(alt_base))
-                            #mutants_base.append(alt_rec+'>'+str(alt_base))
-                            #mutants_pairs_list.append((counter+1,str(alt_base)))
-                            #mutants_pos += 1
                     counter += 1
                     counter_q += 1
         # Merge mutant fingerprintts to one string with positions separated by "-"
@@ -205,13 +199,13 @@ class SAMtoFP:
 
     def get_snv_table(self):
         """
-        TODO describe
+        Extract mutation information from CIGAR string in mapping file and convert to dna pfofile
         """
 
         dates= []
         snvs = []
         file = pysam.AlignmentFile(self.filename)
-
+    
         for read in file.fetch(self.ref_name):
             name = read.query_name
             seq = str(read.query_sequence)
@@ -236,39 +230,4 @@ class SAMtoFP:
         snv_table = snv_table.sort_values(by="date")
         return snv_table
 
-    #TODO weg
-    # def write_fp(self):
-    #     """
-    #     Write sequence fingerprints from CIGAR format in BAM file.
-
-    #     :returns sequences_list_base: fingerprints per bin per sequence as one string
-    #     :returns sequence_pos_list: fingerprints per bin per sequence as list of strings
-    #     :rtype: list
-    #     :returns sequence_pair_list: fingerprints per bin per sequence as pairs of
-    #         sequence positions and mutant bases
-    #     :rtype: list
-    #     :returns lref: length of reference sequence
-    #     :rtype: int
-    #     """
-    #     # Write positions with mutant base as string
-    #     sequences_list_base = []
-    #     # Write positions with mutant base as pair
-    #     sequence_pair_list = []
-
-    #     file = pysam.AlignmentFile(self.filename)
-
-    #     for read in file.fetch(self.ref_name):
-    #         name = read.query_name
-    #         seq = str(read.query_sequence)
-    #         start_ = read.get_reference_positions()
-    #         start = start_[0]
-    #         # Trim with cigar string
-    #         cigar = read.cigartuples
-
-    #         mutants_string, lref, mutants_pairs_list = self._cigar_to_fp(seq, cigar, start, name)
-
-    #         sequences_list_base.append((name,mutants_string))
-    #         sequence_pair_list.append(mutants_pairs_list)
-
-
-    #     return sequences_list_base, lref, sequence_pair_list
+   

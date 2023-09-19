@@ -12,53 +12,46 @@ from itertools import compress,chain
 #' @return A vector with the same genotypes from the input, but filterred represented as string of single nucleotide variants (SNVs) seperated by a blank
 
 def filter_snvs(snvs_per_seq, freq_threshold=2, masked_positions=[], remove_indels=True, remove_all_insertions=True):
-  #snvs_per_seq = seq_info_short_table['snvs']
-  #tic("split snv strings")
+  
 
   # splitting at blanks
-  print("Split string into distinct SNVs")
+  print("  Split string into distinct mutations")
   snvs_lists = snvs_per_seq.apply(str.split)
 
-  #toc()
 
   #TODO remove insertions and deletions
   #always remove preceding insertions (pos = 0), optionally remove all insertions
-  print("Remove insertions ")
+  print("  Remove insertions ")
   snvs_lists = snvs_lists.apply(filter_insertions, all=remove_all_insertions)
   if remove_indels:
-    print("... and deletions")
+    print("  ... and deletions")
     snvs_lists = snvs_lists.apply(filter_indels)
 
   # extract SNV positions
-  print("Extract SNV positions")
+  print("  Extract SNV positions")
   snv_pos_list = snvs_lists.apply(lambda snvs: list(map(extract_position, snvs)))
   
   # merge all lists of positions and count positions
-  print("Count positions")
+  print("  Count positions")
   pos_counts = snv_pos_list.explode().value_counts(sort=False)
 
 
   #filter positions which don't exceed the given threshold or which are masked
   # set is faster than list
-  print("Filter positions which don't exceed the given threshold or which are masked")
-  print("...Positions before filtering " + str(len(pos_counts)))
+  print("  Filter positions which don't exceed the given threshold or which are masked")
+  print("  ...Positions before filtering " + str(len(pos_counts)))
 
   pos_filtered = (set(list(pos_counts[pos_counts <= freq_threshold].index) + masked_positions))
-  #tic("which pos must be deleted")
-  ## 26 sec aufm Mac 
-  #pos_counts_filtered = snv_pos_list.apply(lambda snvs: [x for x in snvs if x not in pos_filtered])
+
   pos_counts_filtered = snv_pos_list.apply(lambda snvs: [x not in pos_filtered for x in snvs])
 
-  print("...Filtering out " + str(len(pos_filtered)) + " positions")
+  print("  ...Filtering out " + str(len(pos_filtered)) + " positions")
 
   # filter the actual snv table: check per seuqence if the snv is filtered or not with function compress
-  print("Filter and recreate the actual SNV table")
+  print("  Filter and recreate the actual SNV table")
   df = pd.DataFrame({'s': snvs_lists, 'p':pos_counts_filtered})
   snvs_filtered = df.apply(lambda x: ' '.join(list(compress(x.s, x.p))), axis=1)
   
-  #snvs_filtered = snvs_lists.reset_index().apply(lambda x: (list(compress(snvs_lists[x.index], pos_counts_filtered[x.index])))).snvs
-  # create string again as haplotype
-  #snvs_filtered = snvs_filtered.apply(lambda x: ' '.join(x))
 
   return snvs_filtered 
 
@@ -68,7 +61,6 @@ def extract_position(snv):
   pos = re.findall("(?<=[A-Za-z])\\d+(?=[A-Za-z])", snv)
   #deletions
   pos = re.findall("(?<=\\:)\\d+(?=\\:)", snv) if not pos else pos
-  #pos =  re.findall("\\d+", snv)
   if pos:
     pos = int(pos[0]) 
   else:
