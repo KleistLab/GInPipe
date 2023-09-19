@@ -28,10 +28,10 @@ def merge_tables(table1, table2):
     return pd.merge(table1, table2)
 
 
-def calculate_minimal_incidence(phi_per_day, rep_cases_per_day):
+def calculate_minimum_incidence(phi_per_day, rep_cases_per_day):
     
     if len(phi_per_day) != len(rep_cases_per_day):
-        raise ValueError("Error while calculating minimal incidence. Smoothed phi and reported cases are not of the same length.")
+        raise ValueError("Error while calculating minimum incidence. Smoothed phi and reported cases are not of the same length.")
     
     min_n_true = round(phi_per_day * max(rep_cases_per_day / phi_per_day)).astype(int)
     return min_n_true

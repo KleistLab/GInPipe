@@ -6,7 +6,7 @@
 [![DOI](https://zenodo.org/badge/359502958.svg)](https://zenodo.org/badge/latestdoi/359502958)
 
 This pipeline infers the trajectory of an effective population size (or incidence) for a viral pandemic from a collection of time-stamped viral sequences. The pipeline has, so far been tested for SARS-CoV-2.
-In brief: Viral sequence data is placed into redundant temporal bins. For each bin, a parameter is inferred that correlates with the effective population size estimate (or incidence) of the infection. GInPipe then smoothes over all derived parameters and reconstructs continuous trajectory of the effective population size estimate (or incidence) [[1]](#1).
+In brief: Viral sequence data is placed into redundant temporal bins. For each bin, a parameter phi is inferred that correlates with the effective population size estimate (or incidence) of the infection. GInPipe then smoothes over all derived phi estimates and reconstructs a continuous trajectory of the effective population size estimate (or incidence) [[1]](#1).
 
   -   [System requirements](#system-requirements)
       -   [Operating systems](#operating-systems)
@@ -23,7 +23,7 @@ In brief: Viral sequence data is placed into redundant temporal bins. For each b
 ## System requirements
 
 ### Operating systems
-This workflow was tested on macOS Mojave Version 10.14.4, macOS Catalina Version 10.15.7, as well as Linux Version 5.0.0-38.
+This workflow was tested on macOS Monterey Version 12.6.6, as well as Linux Version 5.0.0-38.
 
 ### Prerequisites
 Some tools have to be installed to run the analysis. We recommend following the steps below to set up the pipeline.
@@ -129,7 +129,7 @@ In the field **name**, you can provide a name for the given samples, for example
   name: country
   ```
 
-**1. FASTA file**
+*1. FASTA file*
 
 If the input file is a FASTA file with the sequences,the date must be part of the header behind a vertical bar, similar to sequence-names in GISAID: **'>some_name|%YYYY-%mm-%dd'**.
 
@@ -146,7 +146,7 @@ Add the file path of reference sequence into the variable **reference** of [`con
   ```
 
 
-**2. CSV file**
+*2. CSV file*
 
 The input file can also be a CSV file containing one column with the date and one column with the mutations which are separated by blank. The format of the each mutation is WtPositionMut. The column names must be given as *date* and *dna_profile*
 
@@ -156,7 +156,7 @@ date,dna_profile
 2023-01-06,C44T T670G T2954C
 ```
 
-Here, no reference file needs to be provided.
+In this case, no reference file is needed.
 
 
 #### Binning parameters
@@ -173,12 +173,12 @@ Parameters can be given as an array.
 Alternatively, all arrays can be given in the configuration file as a list, like this:
 
   ```
-  number_per_bin:
+  seq_per_bin:
       - 20
       - 30
   ```
 
-Optionally, you can restrict which bins should be considered for the phi estimatation, by setting the minimal bin size (default 1), as well as the  minimal and maximal days spanning the bin (default 1 and 21).
+Optionally, you can restrict which bins should be considered for the phi estimatation, by setting the minimum bin size (default 1), as well as the minimum and maximum number of days spanning the bin (default 1 and 21).
 
 
   ```
@@ -222,10 +222,10 @@ A line is smoothed through the phi point estimates with a kernel smoother. The s
 The parameter is optional, with default 7.
 
 
-#### Estimate the minimal number of infected 
+#### Estimate the minimum number of infected 
 
 The smoothed phi estimates are a proxy for the underlying true number of infected. 
-If the reported new cases are available for the same time horizon, we can estimate the minimal number of truely infected. 
+If the reported new cases are available for the same time horizon, we can estimate the minimum number of truly infected. 
 
 The reported cases table can be provided with the following parameters in the [`config.yaml`](./config.yaml):
 
@@ -241,7 +241,7 @@ If no reported cases data is provided, leave the fields empty like this:
   reported_cases: []
   ```
 
-Before the minimal true incidence is calculated the phi estimates and reported cases can be smoothed to prevent the normalisation by an outlier. The smoothing bandwith is set with
+Before the minimum true incidence is calculated the phi estimates and reported cases can be smoothed to prevent the normalisation by an outlier. The smoothing bandwith is set with
 
 ```
 smoothing_bandwidth_mi: 7
@@ -253,14 +253,14 @@ Also the time frame to be considered can be optionally set with parameters
 
 ```
 from_date: "2022-01-01"
-to_date:"2022-12-31"
+to_date: "2022-12-31"
 ```
 
 If all dates are considered, leave the fields empty: 
 
 ```
 from_date: ""
-to_date:""
+to_date: ""
 ```
 
 ### Execution
@@ -282,15 +282,17 @@ With parameter --configfile you can give the configuration file, described above
 ## Output
 The pipeline creates a folder **'results'**, containing all outputs, with the following structure:
 ```
-    ├── results                                   # Main results folder
-    │   ├── phi_estimates                         # phi estimation results
-    │       ├── phi_estimates_per_bin_*.csv       # binning results tables containing the point estimates per bin
-    │       ├── smoothed_phi_estimates_*.csv      # table containing the smoothed phi value per day             
-    │       ├── sequence_stats_per_day_*.csv      # table with sequence statistics per day
-    │       └── plot_smoothed_phi_estimates_*.pdf # plot with point estimates and smoothed line
-    │   ├── incidence                             # minimal incidence results
-            ├── minimal_incidence_*.csv           # table with minimal incidence
-    │       └── plot_minimal_incidence_*.pdf      # plot with minimal incidence and reported cases
+    └── results                                       # Main results folder
+        ├── phi_estimates                             # phi estimation results
+        |   ├── phi_estimates_per_bin_name.csv        # binning results tables containing the point estimates per bin
+        |   ├── smoothed_phi_estimates_name.csv       # table containing the smoothed phi value per day             
+        |   ├── sequence_stats_per_day_name.csv       # table with sequence statistics per day
+        |   └── plot_smoothed_phi_estimates_name.pdf  # plot with point estimates and smoothed line
+        ├── incidence                                 # minimum incidence results
+        |   ├── min_incidence_name.csv                # table with minimum incidence
+        |   └── plot_min_incidence_name.pdf           # plot with minimum incidence and reported cases
+        └── (snv)                                     # snv results in case the input is in fasta format
+            └── (name.csv)                            # created snv table in case the input is in fasta format
 ```
 
 ## Demo

@@ -26,9 +26,9 @@ if not name:
 	name = basefilename
 
 def get_input():
-	# if reported cases are given, the minimal incidence can be obtained, else 
+	# if reported cases are given, the minimum incidence can be obtained, else 
 	if rc:
-		return "results/incidence/minimal_incidence_"+name+".csv"
+		return "results/incidence/min_incidence_"+name+".csv"
 	# else the smoothed incidence correlate
 	return "results/phi_estimates/smoothed_phi_estimates_" + name + ".csv"
 
@@ -215,6 +215,6 @@ if rc:
 		conda:
 			"env/env.yml"
 		output:
-			mi_table = "results/incidence/minimal_incidence_" + name + ".csv"
+			mi_table = "results/incidence/min_incidence_" + name + ".csv"
 		script:
 			"scripts/calculate_case_ascertainment.py"
