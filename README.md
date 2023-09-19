@@ -54,7 +54,7 @@ This step may take a few minutes.
 To activate the environment type:
 
 ```
-mamba activate GInPipe
+mamba activate GInPipe3
 ```
 ---
 *Note:* In case the conda environments are not found anymore, you may need to add the location to the environment directories.
@@ -63,71 +63,33 @@ mamba activate GInPipe
 conda config --append envs_dirs /path/to/conda/envs/
 ```
 
-#### Install Snakemake -> WEG?
-
-Snakemake is the workflow management system we use. Install it in your activated environment like this:
-
-```
-conda install -c conda-forge -c bioconda snakemake
-```
-
-NOTE: In case conda is not able to find the packages for snakemake (which was the case for the Linux version), you can install mamba in your environment
-
-```
-conda install -c conda-forge mamba
-```
-
-and download snakemake with
-
-```
-mamba install -c conda-forge -c bioconda snakemake
-```
-
-Detailed Snakemake installation instruction using mamba can be found here: https://snakemake.readthedocs.io/en/stable/getting_started/installation.html.
-
-#### Install R
-
-To run R routines, R including Rscript needs to be installed for the workflow. If it is not yet, you can install it together with the needed packages in your activated environment with conda or mamba
-
-```
-conda install -c conda-forge -c bioconda r-base r-ggplot2 r-r0 r-scales r-devtools
-```
-
 
 ### Dependencies
 
 This workflow uses the following dependencies:
 
-```
-  - bbmap
-  - seqkit
-  - samtools
-  - numpy
-  - pysam
-  - biopython
-  - pandas
-  - scipy
-  - pyvcf
-  - minimap2
-  - ggplot2
-  - R0
-  - scales
-  - pip
-  - devtools
-  - ginpipepy
-  - ginpiper
-```
 
-They are installed automatically upon execution using the environment file [`env.yml`](./env/env.yml) and R scripts [`computeInterpolation.R`](./scripts/RScripts/splines/computeInterpolation.R) and [`computeR0.R`](./scripts/RScripts/splines/computeR0.R). *ginpipepy* is a custom package that contains functions for binning, population size calculations, and masking. It is installed within the environment using *pip* from https://github.com/KleistLab/ginpipepy. *ginpiper* is a package that contains functions for smoothing, plotting, and date transformations. It is another custom package used by the pipeline and is installed using *devtools* from https://github.com/KleistLab/ginpiper.
+  | python      | 3.9.18  |
+  | snakemake   | 7.32.3  |
+  | biopython   | 1.78    |
+  | pandas      | 2.0.3   |
+  | scipy       | 1.11.1  |
+  | bbmap       | 38.18   |
+  | numpy       | 1.24.4  |
+  | matplotlib  | 3.7.2   |
+  | scikit-fda  | 0.8.1   |
+  | pysam       | 0.21.0  |
+  | seqkit      | 2.4.0   |
+  | samtools    | 1.17    |
+  | minimap2    | 2.26    |
 
-## Input
-As an input, the pipeline requires a file containing sequences and a file with a reference consensus sequence.
 
-For the sequences it is important that they contain a sequencing-, or better, sampling-date. The date must have the format **%YYYY-%mm-%dd**
-and must be part of the sequence-name of the FASTA header, which should look like this: **'>some_name|%YYYY-%mm-%dd'**.
 
-The header of the reference sequence can contain an arbitrary name, but importantly without white spaces:
-**'>some_reference_name'**. If there are whitespaces present in the reference name string, a substring before the first whitespace will be used.
+They are installed automatically upon creating the environment using the environment file [`env.yml`](./env/env.yml)
+
+---
+*Note:* In case some of the packages or tools can not automatically be installed, delete or comment out the dependency in the yml file, create the environment without it, activate the environment and install it manually.
+
 
 ## Running the pipeline
 
@@ -136,39 +98,137 @@ This is a small guide on how to set up and run the pipeline.
 
 ### Initialization
 
-As input the pipeline requires names of the sequence file, the reference genome, and binning parameters.
-These variables are stored in [`config.yaml`](./config.yaml) and used as wildcards to create and link files with each other or as parameters for the binning. For more information about the YAML markup format refer to documentation: https://yaml.org
+As input the pipeline requires names of the input files, binning- and smoothing parameters.
+These variables are stored in [`config.yaml`](./config.yaml).
 
 The specified paths in the config file should either be absolute, or relative to the work environment specified with -d in the snakemake call (see below in [Execution](#execution)).
 
-**Note:** paths to files in [`config.yaml`](./config.yaml) should be either:
+*Note:* paths to files in [`config.yaml`](./config.yaml) should be either:
 - absolute,
 - or relative to the main pipeline Snakefile,
 - or relative to the working directory (see below in Execution section).
 
-#### 1 Sample sequences
-The pipeline requires a file containing sequences, with the date in the sequence-name in GISAID format (date in format "%Y-%m-%d" at the end of header after a vertical bar).
 
-For sequence files containing the date within the sequence-name, copy the file path and paste it into the variable **samples** of [`config.yaml`](./config.yaml):
+#### Input files
 
-  ```
-  samples: "path/to/sequences/data"
-  ```
-If the headers in the sequence file do not contain the date, you can add it to headers using a custom script, given a meta table is provided along with the FASTA file.
+As an input, the pipeline requires the samples along with a sequecing-, or better, collection date (format **%YYYY-%mm-%dd**). The file can be either given as a fasta file or a table containing the dna profile (SNVs).
+The pipeline automatically chooses the workflow according to the file extension. So please name your sample file either with *.fasta* or *.csv*.
 
-In the field **group**, you can provide a name for the given samples, for example the country, location or any specifier for the given sequences, which is used for the plots.
+
+Copy the file path and paste it into the variable **samples** of [`config.yaml`](./config.yaml):
 
   ```
-  group: country
+  samples: "path/to/sequences/datafile"
+  ```
+
+In the field **name**, you can provide a name for the given samples, for example the country, location or any specifier for the given sequences, which is used for the plots.
+
+  ```
+  name: country
+  ```
+
+**1. FASTA file**
+
+If the input file is a FASTA file with the sequences,the date must be part of the header behind a vertical bar, similar to sequence-names in GISAID: **'>some_name|%YYYY-%mm-%dd'**.
+
+
+Along with the FASTA file a reference sequence needs to be provided (also in FASTA format). 
+The header of the reference sequence can contain an arbitrary name, but importantly without white spaces:
+**'>some_reference_name'**. If there are whitespaces present in the reference name string, a substring before the first whitespace will be used.
+
+
+Add the file path of reference sequence into the variable **reference** of [`config.yaml`](./config.yaml).
+
+  ```
+  reference: "path/to/consensus/sequence.fasta"
   ```
 
 
-#### 2 Reported cases data file
+**2. CSV file**
 
-To compare estimated population dynamics with reported active cases, provide the following parameters in the corresponding config field like this:
+The input file can also be a CSV file containing one column with the date and one column with the mutations which are separated by blank. The format of the each mutation is WtPositionMut. The column names must be given as *date* and *dna_profile*
+
+```
+date,dna_profile
+2023-01-06,C241T T595C T670G C1931A C2790T
+2023-01-06,C44T T670G T2954C
+```
+
+Here, no reference file needs to be provided.
+
+
+#### Binning parameters
+
+The pipeline assigns the sequences into consecutive bins. Parameters to create and filter those bins can be set in the [`config.yaml`](./config.yaml).
+For the binning strategy you can set the number of sequences per bin, and the number of days.
+Parameters can be given as an array.
+  ```
+  seq_per_bin: [20, 30]
+  days_per_bin: [7, 10, 30]
+  
+  ```
+
+Alternatively, all arrays can be given in the configuration file as a list, like this:
 
   ```
-  reported_cases: ["path/to/reported_cases.csv","\t","date","new_cases","%m/%d/%y"]
+  number_per_bin:
+      - 20
+      - 30
+  ```
+
+Optionally, you can restrict which bins should be considered for the phi estimatation, by setting the minimal bin size (default 1), as well as the  minimal and maximal days spanning the bin (default 1 and 21).
+
+
+  ```
+  min_bin_size: 200
+  min_days_span: 2
+  max_days_span: 21
+  ```
+
+#### Parameters for phi estimation
+
+Low-abundance point mutations can be filtered out (optionally), to avoid the consideration of sequence errors.
+The cutoff for the amount of mutations at a certain sequence position in the whole dataset is set with:
+
+  ```
+  freq_cutoff: 2
+  ```
+
+If only a certain region within the sequence is of intereset or regions are prone to errors, positions can be optionally masked by setting
+
+  ```
+  masking: 1-10,15,200-210
+  ```
+
+The mutations are separated by ",". Positions ranges are given with pos1-pos2.
+
+If no positions are masked, leave the field empty:
+
+
+  ```
+  masking: ""
+  ```
+
+
+A line is smoothed through the phi point estimates with a kernel smoother. The smoothing bandwidth is set with
+
+
+  ```
+  smoothing_bandwidth_phi: 3
+  ```
+
+The parameter is optional, with default 7.
+
+
+#### Estimate the minimal number of infected 
+
+The smoothed phi estimates are a proxy for the underlying true number of infected. 
+If the reported new cases are available for the same time horizon, we can estimate the minimal number of truely infected. 
+
+The reported cases table can be provided with the following parameters in the [`config.yaml`](./config.yaml):
+
+  ```
+  reported_cases: ["path/to/reported_cases.csv",",","date","new_cases","%m/%d/%y"]
   ```
 
 where the first element of the list is the file name with format extension, the second element is the delimiter type in this file, date column name, active cases column name, and a format the date is stored in.
@@ -179,83 +239,34 @@ If no reported cases data is provided, leave the fields empty like this:
   reported_cases: []
   ```
 
-#### 3 Reference sequence
-Add the file path of reference/consensus sequence into the variable **consensus** of [`config.yaml`](./config.yaml).
+Before the minimal true incidence is calculated the phi estimates and reported cases can be smoothed to prevent the normalisation by an outlier. The smoothing bandwith is set with
 
-  ```
-  consensus: "path/to/consensus/sequence.fasta"
-  ```
+```
+smoothing_bandwidth_mi: 7
+```
 
-#### 4 Binning parameters
-You also have to set the parameters for some of the binning methods in [`config.yaml`](./config.yaml).
-You can set the number of sequences per bin, and the number of days.
-Parameters can be given as an array. Additionally, minimal bin size and maximal days span should be
-provided.
+The default value is 7.
 
-  ```
-  number_per_bin: [20, 30]
-  days_per_bin: [7, 10, 30]
-  min_bin_size: 15
-  max_days_span: 21
-  min_days_span: 2
-  ```
+Also the time frame to be considered can be optionally set with parameters
 
-If parameter **number_per_bin** is an empty list, a default mode with predefined fractions of sequences (2%, 5%, 7%) is used. Alternatively, all arrays can be given in the configuration file as a list, like this:
+```
+from_date: "2022-01-01"
+to_date:"2022-12-31"
+```
 
-  ```
-  number_per_bin:
-      - 20
-      - 30
-  ```
+If all dates are considered, leave the fields empty: 
 
-#### 5 Threshold for mutations
-
-Low-abundance point mutations are filtered out, to avoid the consideration of sequence errors.
-The cutoff for the amount of mutations at a certain sequence position in the whole dataset is set with:
-
-  ```
-  freq_cutoff: 2
-  ```
-
-#### 6 Effective reproduction number prediction
-
-The workflow can calculate and plot the prediction of effective reproduction number. If this prediction is desired, specify it via a boolean variable in the configuration file, for example like this:
-
-  ```
-  R0: yes
-  ```
-
-If no prediction is wanted, specify it in the configuration file like this:
-
-  ```
-  R0: no
-  ```
-
-Alternative options for specifying this parameter are "on/off" and "true/false" (case insensitive).
-<!--Other options for specifying this parameter also work. For examples see https://yaml.org/type/bool.html Single characters do not work. -->
-
-#### 7 Masking using a Variant Calling File
-
-A VCF containing sites that need to be masked can also be provided via config:
-
-  ```
-  masking: "path/to/vcf"
-  ```
-
-The pipeline will check for flag "mask" in the FILTER column to apply masking to a particular site.
-
-If no masking file is provided, leave the field empty:
-
-  ```
-  masking: ""
-  ```
+```
+from_date: ""
+to_date:""
+```
 
 ### Execution
 
 To run the pipeline activate (if not activated yet) the conda environment with
 
 ```
-conda activate GInPipe
+conda activate GInPipe3
 ```
 
 Go to the pipeline directory (where the Snakefile named *GInPipe* is located) and enter the following command to execute the pipeline:
@@ -267,53 +278,27 @@ snakemake --snakefile GInPipe --configfile path/to/config.yaml -j -d path/to/wor
 With parameter --configfile you can give the configuration file, described above. The -j parameter determines the number of available CPU cores to use in the pipeline. Optionally you can provide the number of cores, e.g. -j 4. With parameter -d you can set the work directory, i.e. where the results of the pipeline are written to.
 
 ## Output
-The pipeline creates a folder **'results'**, containing all (intermediate) outputs, with the following structure:
+The pipeline creates a folder **'results'**, containing all outputs, with the following structure:
 ```
-    ├── results                                 # Main results folder
-    │   ├── bam                                 # sorted and indexed bam files
-    │   ├── bins                                # binning results
-    │       ├── cal_week                        # binned by calendar week
-    │       ├── eq_days_10                      # binned by equal days                       
-    │       ├── eq_size_100                     # binned by equal number of sequences
-    │       └── fuzzy_days_100                  # binned by equal number of sequences (fuzzy)
-    │               ├── bin_*.bam               # binned sequences as BAM
-    │               ├── bin_*.bai               # index files                       
-    │               ├── header_*.tsv            # header files (seq. name & date)
-    |               ├── range_*.tsv             # range of dates of the corresponding bin
-    |               └── list_of_files.tsv       # list of file names in the binning mode
-    │   ├── bins_incidence                      # Individual binning results tables
-    │   ├── meta                                # Meta information about all used sequences (name and collection date)
-    │   ├── incidence                           # Plots and tables for final interpolated trajectory
-    |       ├── incidence.csv                   # table with interpolated population size estimates
-    │       ├── phi_estimate.csv                # table with raw population size estimates                       
-    │       ├── incidence.pdf                   # plot of interpolated population size
-    |       └── wdots_incidence.pdf             # plot of interpolated population size with dot size scaled by bin size
-    │   ├── r0                                  # Reproduction number estimate
-    |       ├── r0.csv                          # table with daily reproduction number estimates
-    │       └── r0.pdf                          # plot of daily reproduction number estimates                       
-    │   └── raw                                 # Preprocessed files
-    │   
-    └── ...
+    ├── results                                   # Main results folder
+    │   ├── phi_estimates                         # phi estimation results
+    │       ├── phi_estimates_per_bin_*.csv       # binning results tables containing the point estimates per bin
+    │       ├── smoothed_phi_estimates_*.csv      # table containing the smoothed phi value per day             
+    │       ├── sequence_stats_per_day_*.csv      # table with sequence statistics per day
+    │       └── plot_smoothed_phi_estimates_*.pdf # plot with point estimates and smoothed line
+    │   ├── incidence                             # minimal incidence results
+            ├── minimal_incidence_*.csv           # table with minimal incidence
+    │       └── plot_minimal_incidence_*.pdf      # plot with minimal incidence and reported cases
 ```
-The analysis results for different binning modes (plots and tables) can be found in the subfolder **results/bins_incidence** and the smoothed final trajectory can be found in subfolder **results/incidence**. The final output (depending on the setup of the pipeline) contains the following tables and plots:
-
-- In folder *incidence*:
-    - *phi_estimate.csv*: table containing estimates of population size for all binning strategies
-    - *incidence.csv*: table containing interpolated final trajectory of population size; the trajectory is calculated by  combining all binning strategies
-    - *incidence.pdf*: plot of interpolated trajectory, optionally overlayed with reported cases trajectory (if the corresponding table was given)
-    - *wdots_incidence.pdf*: plot of interpolated trajectory with point estimate dots scaled by corresponding sub-sample size, optionally overlayed with reported cases trajectory (if the corresponding table was given)
-- In folder *r0* (if option to calculate reproduction number is chosen):
-    -  *r0.csv*: table containing daily reproductive number estimates; calculated from the interpolated trajectory
-    -  *r0.pdf*: plot of daily reproductive number estimates with confidence interval
 
 ## Demo
 
-A demo sequence set and a reference sequence are included in repository folders [`demo`](./demo).
-The directory contains a simulated data set with
+As a demo, we provide a set of German SARS-CoV-2 sequences from 2022[^1] along with reported cases[^2] in the folder [`demo`](./demo).
 
-- the reference sequence (demo_reference.fasta)
-- a fasta file containing the newly emerging sequences over time (demo_samples.fasta)
-- the underlying true number of emerging sequences (demo_reported_cases.tsv)
+The directory comprises a data set with
+
+- a csv file containing the dna profiles of SARS-CoV-2 sequences over time (demo_samples.csv)
+- the reported cases (demo_reported_cases.csv)
 - the config file to call the pipeline with (demo_config.yaml)
 
 
@@ -323,14 +308,26 @@ To run the pipeline go into the repository where the GInPipe file is located and
 snakemake --snakefile GInPipe --configfile demo/demo_config.yaml -j -d demo
 ```
 
-It may take around 2 minutes to run the pipeline.
-The result folder is created in the [`demo`](./demo) folder where you find the output files, as described above. The incidence plot of the demo sample should look like this:
+or 
 
-![alt text](https://github.com/KleistLab/GInPipe/blob/main/demo/demo_result.png)
+```
+snakemake --snakefile GInPipe --configfile demo_csv/demo_config.yaml -j -d demo
+```
 
-## Running the pipeline for SARS-CoV-2 on GISAID data
+respectively.
 
-To run the pipeline on real data, such as COVID sequences from GISAID, download the according sequence data as well as the reference sequence and adapt the paths in the config.yaml as explained in [Initialization](#initialization).
+
+The result folder is created in the demo folder where you find the output files, as described above. 
+<!-- The incidence plot of the demo sample should look like this: -->
+
+<!-- ![alt text](https://github.com/KleistLab/GInPipe/blob/main/demo/demo_result.png) -->
+
+[^1]: https://github.com/robert-koch-institut/SARS-CoV-2-Sequenzdaten_aus_Deutschland
+[^2]: https://github.com/robert-koch-institut/SARS-CoV-2-Infektionen_in_Deutschland
+
+## Running the pipeline for SARS-CoV-2 
+
+To run the pipeline on real data, such as COVID sequences from GISAID or dna profiles from a [covSonar](https://github.com/rki-mf1/covsonar) database, download the according sequence data as well as the reference sequence and adapt the paths in the config.yaml as explained in [Initialization](#initialization).
 
 ## Reference
 <a id="1">[1]</a>
