@@ -2,12 +2,6 @@
 import os
 from pathlib import Path
 
-# def get_reported_cases_params():
-#     rep_cases = config["reported_cases"]
-#     if not :
-#         rep_cases = [""] * 5
-#     return rep_cases
-
 #filename without extension
 basefilename = Path(config["samples"]).stem
 filetype = Path(config["samples"]).suffix
@@ -15,7 +9,7 @@ filetype = Path(config["samples"]).suffix
 # Check if reported cases are given (if not, pipeline will terminate earlier)
 rep_cases = config["reported_cases"]
 rc = True
-print(rep_cases)
+
 if len(rep_cases) != 5 or not rep_cases[0]:
 	rep_cases = [""] * 5
 	rc = False
@@ -45,7 +39,6 @@ rule all:
         get_input()
 
 #### Optional preprocessing of sequences files in fasta format
-print(filetype)
 if filetype == '.fasta':
 	# If no SNV file is given, it need to be created
 	snv_file = "results/snv/" + name + ".csv"
@@ -171,7 +164,6 @@ if filetype == '.fasta':
 
 
 ##### From here, the call remains the same, calling it with SNV table (covSonar like)
-print(snv_file)
 
 rule run_incidence_estimation:
 	input:
@@ -187,10 +179,8 @@ rule run_incidence_estimation:
 		masked_positions = config["masking"]
 	conda:
 		"env/env.yml"
-	log:
-		"logs/binning_and_estimation.log"
 	script:
-		"scripts/run_incidence_estimation.py" #2> {log}
+		"scripts/run_incidence_estimation.py"
 
 rule smoothing:
 	input:
@@ -203,12 +193,10 @@ rule smoothing:
 		name = name
 	conda:
 		"env/env.yml"
-	log:
-		expand("logs/smoothing.log")
 	output:
 		smoothed_phi = "results/phi_estimates/smoothed_phi_estimates_" + name + ".csv"
 	script:
-			"scripts/smooth_phi_estimates.py" #2> {log}
+			"scripts/smooth_phi_estimates.py"
 
 if rc:
 	rule minimal_incidence:
@@ -226,9 +214,7 @@ if rc:
 			name = name
 		conda:
 			"env/env.yml"
-		log:
-			"logs/minimal_incidence.log"
 		output:
 			mi_table = "results/incidence/minimal_incidence_" + name + ".csv"
 		script:
-			"scripts/calculate_case_ascertainment.py" # 2> {log}
+			"scripts/calculate_case_ascertainment.py"

@@ -1,5 +1,25 @@
 # Full path to samples, either to raw fasta file (including collection date in header) or covSonar like output in csv format containing date and SNVs
 samples: "path/to/samples"
+# Sample name for plot grouping, e.g. country or data set name (optional. If not given, taking sample name form above)
+name: "country"
+# Full path to reference sequence file in FASTA format (only necessary if fasta files are given)
+reference: "path/to/reference_fasta"
+# Number of sequences per bin for binning mode with equally sized bins
+seq_per_bin: [250, 650, 850]
+# Number of days per bin for binning mode with equal amount of calendar days
+days_per_bin: [10,15,20]
+# Minimal bin size - some fraction of big bin file (optional, default = 100)
+min_bin_size: 100
+# Minimal days span (optional, default = 3)
+min_days_span: 3
+# Maximal days span (optional, default = 21)
+max_days_span: 21
+# Mutant base frequency cutoff - as count (optional, default = 2)
+freq_cutoff: 2
+# Masking positions, separated by ",". Positions ranges given with pos1-pos2 (optional)
+masking: ""
+# Smoothing bandwidth for phi estimates (default = 7)
+smoothing_bandwidth_phi: 7
 # Reported cases table in TSV or CSV format full path with delimiter, date column name,
 # active cases column name, date format
 # Examples for date formatting:
@@ -7,28 +27,8 @@ samples: "path/to/samples"
 # 22-01-2020: "%d-%m-%Y"
 # 2020-02-24T18:00:00: "%Y-%m-%dT%H:%M:%S"
 reported_cases: ["path/to/reported_cases_table","delim","date","new_cases","%Y-%m-%d"]
-# Full path to reference sequence file in FASTA format (only necessary if fasta files are given)
-reference: "path/to/reference_fasta"
-# Number of sequences per bin for binning mode with equally sized bins
-number_per_bin: []
-# Number of days per bin for binning mode with equal amount of calendar days
-days_per_bin: [10,15,20]
-# Minimal bin size - some fraction of big bin file (optional, default = 100)
-min_bin_size: 15
-# Minimal days span (optional, default = 3)
-min_days_span: 3
-# Maximal days span (optional, default = 21)
-max_days_span: 21
-# Mutant base frequency cutoff - as count (optional, default = 2)
-freq_cutoff: 2
-# Sample name for plot grouping, e.g. country or data set name (optional. If not given, taking sample name form above)
-name: "country"
-# Masking positions, separated by ",". Positions ranges given with pos1-pos2 (optional)
-masking: ""
-# Smoothing bandwidth for phi estimates (default = 7)
-smoothing_window_phi: 7
 # Smoothing bandwidth for reported cases (optional, default = 7)
-smoothing_window_rep: 1
+smoothing_bandwidth_mi: 1
 # Write and plot results from date in format YYY-MM-DD (optional)
 from_date: ""
 # Write and plot results until to date in format YYY-MM-DD (optional)
