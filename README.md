@@ -23,7 +23,7 @@ In brief: Viral sequence data is placed into redundant temporal bins. For each b
 ## System requirements
 
 ### Operating systems
-This workflow was tested on macOS Monterey Version 12.6.6, as well as Linux Version 5.0.0-38.
+This workflow was tested on macOS Monterey Version 12.6.6, as well as Linux Version 5.4.0-132.
 
 ### Prerequisites
 Some tools have to be installed to run the analysis. We recommend following the steps below to set up the pipeline.
