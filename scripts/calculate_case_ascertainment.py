@@ -14,7 +14,7 @@ import plot.plot_routines as pt
 
 
 print('-'*80 + "\n")
-print("Calculate the minimal number of infections\n")
+print("Calculate the minimum number of infections\n")
 print('-'*80 + "\n\n")
 
 ##################################################
@@ -100,11 +100,11 @@ if(to_date):
     mi_table = mi_table.loc[(mi_table['date'] <= to_date)]
                
 ##################################################
-### Calculate minimal true infected
+### Calculate minimum true infected
 ##################################################
 
-print(" * Infer minimal number of infected")
-mi_table['min_n_true'] = ca.calculate_minimal_incidence(mi_table['smoothed_phi'], mi_table['smoothed_cases'])
+print(" * Infer minimum number of infected")
+mi_table['min_n_true'] = ca.calculate_minimum_incidence(mi_table['smoothed_phi'], mi_table['smoothed_cases'])
 
 ##################################################
 ### Plot results

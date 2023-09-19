@@ -173,12 +173,12 @@ Parameters can be given as an array.
 Alternatively, all arrays can be given in the configuration file as a list, like this:
 
   ```
-  number_per_bin:
+  seq_per_bin:
       - 20
       - 30
   ```
 
-Optionally, you can restrict which bins should be considered for the phi estimatation, by setting the minimal bin size (default 1), as well as the  minimal and maximal days spanning the bin (default 1 and 21).
+Optionally, you can restrict which bins should be considered for the phi estimatation, by setting the minimum bin size (default 1), as well as the minimum and maximum number of days spanning the bin (default 1 and 21).
 
 
   ```
@@ -222,10 +222,10 @@ A line is smoothed through the phi point estimates with a kernel smoother. The s
 The parameter is optional, with default 7.
 
 
-#### Estimate the minimal number of infected 
+#### Estimate the minimum number of infected 
 
 The smoothed phi estimates are a proxy for the underlying true number of infected. 
-If the reported new cases are available for the same time horizon, we can estimate the minimal number of truely infected. 
+If the reported new cases are available for the same time horizon, we can estimate the minimum number of truly infected. 
 
 The reported cases table can be provided with the following parameters in the [`config.yaml`](./config.yaml):
 
@@ -241,7 +241,7 @@ If no reported cases data is provided, leave the fields empty like this:
   reported_cases: []
   ```
 
-Before the minimal true incidence is calculated the phi estimates and reported cases can be smoothed to prevent the normalisation by an outlier. The smoothing bandwith is set with
+Before the minimum true incidence is calculated the phi estimates and reported cases can be smoothed to prevent the normalisation by an outlier. The smoothing bandwith is set with
 
 ```
 smoothing_bandwidth_mi: 7
@@ -282,15 +282,17 @@ With parameter --configfile you can give the configuration file, described above
 ## Output
 The pipeline creates a folder **'results'**, containing all outputs, with the following structure:
 ```
-    ├── results                                   # Main results folder
-    │   ├── phi_estimates                         # phi estimation results
-    │       ├── phi_estimates_per_bin_*.csv       # binning results tables containing the point estimates per bin
-    │       ├── smoothed_phi_estimates_*.csv      # table containing the smoothed phi value per day             
-    │       ├── sequence_stats_per_day_*.csv      # table with sequence statistics per day
-    │       └── plot_smoothed_phi_estimates_*.pdf # plot with point estimates and smoothed line
-    │   ├── incidence                             # minimal incidence results
-            ├── minimal_incidence_*.csv           # table with minimal incidence
-    │       └── plot_minimal_incidence_*.pdf      # plot with minimal incidence and reported cases
+    └── results                                       # Main results folder
+        ├── phi_estimates                             # phi estimation results
+        |   ├── phi_estimates_per_bin_name.csv        # binning results tables containing the point estimates per bin
+        |   ├── smoothed_phi_estimates_name.csv       # table containing the smoothed phi value per day             
+        |   ├── sequence_stats_per_day_name.csv       # table with sequence statistics per day
+        |   └── plot_smoothed_phi_estimates_name.pdf  # plot with point estimates and smoothed line
+        ├── incidence                                 # minimum incidence results
+        |   ├── min_incidence_name.csv                # table with minimum incidence
+        |   └── plot_min_incidence_name.pdf           # plot with minimum incidence and reported cases
+        └── (snv)                                     # snv results in case the input is in fasta format
+            └── (name.csv)                            # created snv table in case the input is in fasta format
 ```
 
 ## Demo
