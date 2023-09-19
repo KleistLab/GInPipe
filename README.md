@@ -69,6 +69,8 @@ conda config --append envs_dirs /path/to/conda/envs/
 This workflow uses the following dependencies:
 
 
+  | software/package | version  |
+  | ----------- | ------- |
   | python      | 3.9.18  |
   | snakemake   | 7.32.3  |
   | biopython   | 1.78    |
@@ -307,14 +309,6 @@ To run the pipeline go into the repository where the GInPipe file is located and
 ```
 snakemake --snakefile GInPipe --configfile demo/demo_config.yaml -j -d demo
 ```
-
-or 
-
-```
-snakemake --snakefile GInPipe --configfile demo_csv/demo_config.yaml -j -d demo
-```
-
-respectively.
 
 
 The result folder is created in the demo folder where you find the output files, as described above. 
