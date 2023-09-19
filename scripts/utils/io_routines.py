@@ -4,7 +4,6 @@ import datetime
 
 def read_table(file, removeNA=False, sep=","):
 	file_path = Path(file)
-	#try:
 	if not file_path.exists():
 		raise IOError("Error while reading csv file. File does not exist: \n" + str(file_path))
 	table = pd.read_csv(file_path, sep=sep)
@@ -70,7 +69,7 @@ def read_and_extract_snv_file(snv_file):
 	print("Extract columns\n")
 
 	seq_info_short_table = seq_info_table.rename(columns = {"dna_profile": "snvs"})[['date', 'snvs']]
-	seq_info_short_table['t'] = pd.to_timedelta(seq_info_table["date"].apply(datetime.date.fromisoformat) - minDate).dt.days
+	seq_info_short_table['t'] = pd.to_timedelta(seq_info_table["date"].apply(datetime.date.fromisoformat) - minDate).dt.days + 1
 	seq_info_short_table = seq_info_short_table.sort_values("t")
 	seq_info_short_table = seq_info_short_table.reset_index()
 
