@@ -144,8 +144,13 @@ def binning_equal_days(seq_info_short_table, days):
   to_t=days-1
 
   while to_t < max(seq_info_short_table['t']):
-    
     subsample_table = seq_info_short_table[(seq_info_short_table['t']>=from_t) & (seq_info_short_table['t']<=to_t)]
+    # Add check for empty df
+    if subsample_table.empty:
+      # next bin
+      from_t+=days
+      to_t+=days
+      continue
     
     phi_per_bin = infer_bin_attributes(subsample_table)
     phi_per_bin.update({"binning": "eq_days_" + str(days)}) 
@@ -153,10 +158,10 @@ def binning_equal_days(seq_info_short_table, days):
     #phi_per_bin_table_days = phi_per_bin_table_days.append(phi_per_bin, ignore_index=True) 
     phi_per_bin_table_days = pd.concat([phi_per_bin_table_days,pd.DataFrame(phi_per_bin)], ignore_index=True) 
 
-
     # next bin
-    from_t=to_t+1
-    to_t=to_t+days
+    from_t+=days
+    to_t+=days
+
 
   return phi_per_bin_table_days
 
