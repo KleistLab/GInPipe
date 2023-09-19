@@ -1,22 +1,26 @@
-samples: demo_samples.fasta
-name: demo_samples
-reference: demo_reference.fasta
-max_days_span: 20
-min_bin_size: 15
-min_days_span: 2
-seq_per_bin: [250, 650, 850]
+samples: demo_samples.csv
+name: demo
+reference: ""
+min_bin_size: 250
+min_days_span: 7
+max_days_span: 21
+seq_per_bin: 
+- 250
+- 650
+- 850
 days_per_bin:
-- 2
-- 6
+- 7
+- 14
+- 21
 freq_cutoff: 2
 reported_cases:
-- demo_reported_cases.tsv
-- "\t"
+- demo_reported_cases.csv
+- ","
 - date
-- reported_cases
+- newCases
 - '%Y-%m-%d'
-masking: "1-3"
-smoothing_bandwidth_phi: 7
-smoothing_bandwidth_mi: 7 
+masking: "1-10,29000-30000"
+smoothing_bandwidth_phi: 14
+smoothing_bandwidth_mi: 7
 from_date: ""
 to_date: ""
