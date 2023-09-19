@@ -297,7 +297,7 @@ The pipeline creates a folder **'results'**, containing all outputs, with the fo
 
 ## Demo
 
-As a demo, we provide a set of German SARS-CoV-2 sequences from 2022[^1] along with reported cases[^2] in the folder [`demo`](./demo).
+As a demo, we provide a subset of German SARS-CoV-2 sequences[^1] along with reported cases[^2] in the folder [`demo`](./demo).
 
 The directory comprises a data set with
 
