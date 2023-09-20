@@ -25,6 +25,9 @@ def merge_tables(table1, table2):
     table1 = table1.reset_index(drop=True)
     table2 = table2.reset_index(drop=True)
 
+    if len(table1) != len(table2):
+        raise ValueError("Error while merging phi and reported cases tables. It seems that a date occurs more than once in one of the tables. Please ensure there is only one entry per date.")
+    
     return pd.merge(table1, table2)
 
 
