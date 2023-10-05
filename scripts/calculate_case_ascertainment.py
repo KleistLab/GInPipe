@@ -63,12 +63,7 @@ if (not col_date in rep_cases_table) or (not col_case in rep_cases_table):
 
 #rename date column of reported cases
 rep_cases_table = rep_cases_table.rename(columns={col_date:'date'})
-
-# sort tables
-smoothed_phi_table = smoothed_phi_table.sort_values(by='date')
-smoothed_phi_table = smoothed_phi_table.reset_index(drop=True)
-rep_cases_table = rep_cases_table.sort_values(by='date')
-rep_cases_table = rep_cases_table.reset_index(drop=True)
+rep_cases_table = rep_cases_table.rename(columns={col_case:'cases'})
 
 ##################################################
 ### Merge tables and get overlapping time frame
@@ -76,43 +71,23 @@ rep_cases_table = rep_cases_table.reset_index(drop=True)
 
 print(" * Smooth and filter data points")
 
-# TODO: Refactoring: statt über tabellen gleich ne Klasse machen
-mi_table = ca.merge_tables(rep_cases_table, smoothed_phi_table)
+case_ascertainment = ca.case_ascertainment(rep_cases_table, smoothed_phi_table)
+
 ##################################################
 ### Smooth phi estimates and reported cases
 ##################################################
 
-mi_table['smoothed_phi'] = sm.smooth_values(x=mi_table['t'],
-                                                y=mi_table['smoothed_phi'],
-                                                bandwidth=smoothing_window_mi)['y_smoothed']
+case_ascertainment.smooth_phi(bandwidth=smoothing_window_mi)
+case_ascertainment.smooth_cases(bandwidth=smoothing_window_mi)
 
-mi_table['smoothed_cases'] = sm.smooth_values(x=mi_table['t'],
-                                                y=mi_table[col_case],
-                                                bandwidth=smoothing_window_mi)['y_smoothed']
-
-##################################################
-### Filter by dates
-##################################################
-
-if(from_date):
-    mi_table = mi_table.loc[(mi_table['date'] >= from_date)]
-if(to_date):
-    mi_table = mi_table.loc[(mi_table['date'] <= to_date)]
-               
 ##################################################
 ### Calculate minimum true infected
 ##################################################
 
 print(" * Infer minimum number of infected")
-mi_table['min_n_true'] = ca.calculate_minimum_incidence(mi_table['smoothed_phi'], mi_table['smoothed_cases'])
 
-##################################################
-### Plot results
-##################################################
-
-print(" * Plot results")
-out_file = result_path + "/plot_min_infected" + suffix + ".pdf"
-pt.plot_min_infected(mi_table, out_file)
+case_ascertainment.calculate_minimum_incidence()
+mi_table = case_ascertainment.mi_table
 
 ##################################################
 ### Write table
@@ -120,4 +95,28 @@ pt.plot_min_infected(mi_table, out_file)
 
 print(" * Write result table")
 io.write_table(mi_table, file = mi_result_file)
+
+
+##################################################
+### Write coefficient
+##################################################
+
+print(" * Write max ratio")
+out_file = result_path + "/max_ratio_coefficient" + suffix + ".csv"
+io.write_table(case_ascertainment.get_max_ratio(), file = out_file)
+
+##################################################
+### Plot results for the given time interval
+##################################################
+
+print(" * Plot results")
+out_file = result_path + "/plot_min_infected" + suffix + ".pdf"
+
+if(from_date):
+    mi_table = mi_table.loc[(mi_table['date'] >= from_date)]
+if(to_date):
+    mi_table = mi_table.loc[(mi_table['date'] <= to_date)]
+ 
+
+pt.plot_min_infected(mi_table, out_file)
 
