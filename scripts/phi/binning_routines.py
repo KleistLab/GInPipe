@@ -206,9 +206,49 @@ def calculate_phi_per_bin(seq_info_short_table, seqs_per_bin, days_per_bin):
 
   phi_per_bin_table = pd.DataFrame()
 
+  if days_per_bin == 0:
+     print("No days per bins are used.")
+     # if set to 0, don't set any days per bin
+     days_per_bin = []
+  elif not days_per_bin:
+      # set default number of days per bin, if parameters are empty
+      print("No days per bin given by user. Taking default of 7, 10, and 14 days.\n")
+      days_per_bin = [7, 10, 14]
+
   for days in days_per_bin:
-    #phi_per_bin_table =  phi_per_bin_table.append(binning_equal_days(seq_info_short_table, days))
     phi_per_bin_table =  pd.concat([phi_per_bin_table,binning_equal_days(seq_info_short_table, days)])
+
+  if seqs_per_bin == 0:
+     print("No sequences per bins are used.")
+     # if set to 0, don't set any sequences per bin
+     seqs_per_bin = []
+  elif not seqs_per_bin:
+    # set default number of sequences per bin, if parameters are empty
+    # infer percentages of all sequences
+    total_seq=len(seq_info_short_table)
+    seq_perc_2 = round(total_seq*0.02)
+    seq_perc_5 = round(total_seq*0.05)
+
+    # infer average sequences per week
+    seq_info = seq_info_short_table.groupby('t', as_index=True).agg( 
+                          # count sequences
+                          sequences = pd.NamedAgg(column ='index', aggfunc='count'))
+
+    seq_info.index -= min(seq_info.index) 
+    
+    # Fill all missing dates with zero sequences for rolling sum
+    seqs_per_week = pd.Series([0] * max(seq_info_short_table.t))
+    seqs_per_week.iloc[seq_info.index] = seq_info.sequences
+    seqs_per_week = seqs_per_week.rolling(7).sum()
+
+    # take mean of weekly sequences
+    week_mean = round(seqs_per_week.mean())
+
+    print("No sequences per bin given by user. Taking default of 2% (" + str(seq_perc_2) + ") ", end="")
+    print("and 5% (" + str(seq_perc_5) + ") of all sequences, ", end="")
+    print("and the average number of sequences per week (" + str(week_mean) + ").\n")
+
+    seqs_per_bin = [seq_perc_2, seq_perc_5, week_mean]
 
   for s in seqs_per_bin:
     #phi_per_bin_table = phi_per_bin_table.append(binning_equal_size(seq_info_short_table, s))
@@ -216,11 +256,13 @@ def calculate_phi_per_bin(seq_info_short_table, seqs_per_bin, days_per_bin):
   
   # remove invalid phi estimates
   phi_per_bin_table = phi_per_bin_table.dropna().reset_index(drop=True)
-  #phi_per_bin.table <- phi_per_bin.table %>% mutate(date = ginpiper::daysAsDate(days = t, minDate = minDate))
-  #calculate date from min date adding t days
-  phi_per_bin_table['date'] = pd.to_timedelta(phi_per_bin_table['t'], 'days') + pd.to_datetime(minDate) 
-  
-  #sort by date
-  phi_per_bin_table = phi_per_bin_table.sort_values(by='date')
+
+  # if table is not empty, set date
+  if not phi_per_bin_table.empty: 
+    #calculate date from min date adding t days
+    phi_per_bin_table['date'] = pd.to_timedelta(phi_per_bin_table['t'], 'days') + pd.to_datetime(minDate) 
+    
+    #sort by date
+    phi_per_bin_table = phi_per_bin_table.sort_values(by='date')
 
   return phi_per_bin_table
