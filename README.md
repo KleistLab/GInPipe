@@ -169,7 +169,6 @@ Parameters can be given as an array.
   days_per_bin: [7, 10, 30]
   
   ```
-
 Alternatively, all arrays can be given in the configuration file as a list, like this:
 
   ```
@@ -177,6 +176,25 @@ Alternatively, all arrays can be given in the configuration file as a list, like
       - 20
       - 30
   ```
+
+If you leave the list empty 
+
+  ```
+  seq_per_bin: []
+  days_per_bin: []
+  ```
+
+default values are set. 
+
+The number of sequences per bin are set automatically: 2% and 5% of all sequences are taken, as well as the average number of sequences per week.
+The default days per bin are 7, 10, and 14.
+
+If either no sequences or no days per bin shall be set, you can set the parameters to zero:
+
+  ```
+  seq_per_bin: 0
+  ```
+
 
 Optionally, you can restrict which bins should be considered for the phi estimatation, by setting the minimum bin size (default 1), as well as the minimum and maximum number of days spanning the bin (default 1 and 21).
 
