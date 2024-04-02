@@ -196,14 +196,16 @@ If either no sequences or no days per bin shall be set, you can set the paramete
   ```
 
 
-Optionally, you can restrict which bins should be considered for the phi estimatation, by setting the minimum bin size (default 1), as well as the minimum and maximum number of days spanning the bin (default 1 and 21).
-
+Optionally, you can restrict which bins should be considered for the phi estimatation, by setting the minimum bin size (default 1), as well as the minimum and maximum number of days spanning the bin (default 1 and 21). 
 
   ```
-  min_bin_size: 200
+  min_bin_size: 50
   min_days_span: 2
   max_days_span: 21
   ```
+
+Leaving the values empty (""), sets the default values. To have no boundary for the maximum number of days, set the parameter to 0.
+
 
 #### Parameters for phi estimation
 

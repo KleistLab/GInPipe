@@ -40,21 +40,36 @@ try:
         smoothing_window = int(smoothing_window)
     else:
         smoothing_window = 7
+        print("No value given for the smoothing of the phi estimates. Taking default value of " + str(smoothing_window) + ".")
 
     if min_bin_size:
         min_bin_size =  int(min_bin_size)
     else:
         min_bin_size = 1
+        print("No value given for the minimal bin size. Taking default value of " + str(min_bin_size) + ".")
+
 
     if min_days_span:
         min_days_span =  int(min_days_span)
     else:
         min_days_span = 1
+        print("No value given for the minimal number of days per bin. Taking default value of " + str(min_days_span) + ".")
+
     
+ 
+    print(max_days_span)
     if max_days_span:
         max_days_span =  int(max_days_span)
     else:
-        max_days_span = 0
+        # Workaround: if you set max_days_span to empty value (""), 
+        # set the max days to at least 3 weeks 
+        if max_days_span == "":
+            max_days_span = 21
+            print("No value given for the maximal number of days per bin. Taking default value of " + str(max_days_span) + ".")
+        # If you set it to 0, there is no boundary
+        else:
+            max_days_span = 0    
+
 except ValueError:
     raise ValueError("Error while smoothing. Filter and smoothing parameters need to be integers.")
 

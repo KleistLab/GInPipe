@@ -78,6 +78,6 @@ seq_info_perDay_table = si.get_seq_info_per_day(seq_info_short_table)
 ##################################################
 ### write tables
 ##################################################
-print(" *  Write result tables into "+ result_path +"\n")
+print(" * Write result tables into "+ result_path +"\n")
 io.write_phi_per_bin_table(phi_per_bin_table, path = result_path, suffix=suffix)
 io.write_sequence_info_per_day_table(seq_info_perDay_table, path = result_path, suffix=suffix)
