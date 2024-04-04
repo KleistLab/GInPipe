@@ -9,6 +9,7 @@ from pathlib import Path
 import utils.smoothing_routines as sm
 import utils.io_routines as io
 import plot.plot_routines as pt
+import sys
 
 ##################################################
 ### Read parameters
@@ -55,9 +56,6 @@ try:
         min_days_span = 1
         print("No value given for the minimal number of days per bin. Taking default value of " + str(min_days_span) + ".")
 
-    
- 
-    print(max_days_span)
     if max_days_span:
         max_days_span =  int(max_days_span)
     else:
@@ -87,6 +85,8 @@ phi_table = phi_table[(phi_table["daysPerBin"] >= min_days_span) & \
                                ((not max_days_span) | (phi_table["daysPerBin"] <= max_days_span)) & \
                                (phi_table["sampleSize"] >= min_bin_size)]
 
+if phi_table.empty:
+    sys.exit("-"*80+ "\n\n !!!!! No phi estimates to smooth over. Choose different filter criteria. !!!!!\n\n" + "-"*80 + "\n")
 
 smoothed_phi_table = sm.smooth_phi_estimates(phi_table, smoothingBandwidth=smoothing_window)
 
